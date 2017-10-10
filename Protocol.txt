@@ -1,0 +1,25 @@
+
+Phase 1: Mask Counter Exchange
+
+//Given is an 128 bit MaskCounter
+1.1 A creates MaskCounterB from Randomsource
+1.2 A->B: AES(MaskCounterB,SharedSecret), B does MaskCounterB++
+1.3 B creates MaskCounterA from Randomsource
+1.3 B->A: AES(MaskcounterA, SharedSecret), A does MaskcounterA++)
+
+Phase 2: Secure Message Exchange (shown for  only one side)
+
+SecureMessage ::= AES( MaskedPlaintext, SharedSecret)
+
+//For each 16 octets of Plaintext:
+//after each word, the MaskCounter is incremented by one
+MaskedPlaintext16 ::= AuthPlaintext16 ^ MaskCounter
+
+AuthPlaintext ::= PlaintextToAuth DM_MAC(PlaintextToAuth)
+
+PlaintextToAuth ::= Length Plaintext Padding
+
+Length ::= 32 bit unsigned integer, Network Byte Order
+
+Padding ::= Octets of value 0 for padding to a multiple of 16
+
