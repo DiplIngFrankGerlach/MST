@@ -1,3 +1,13 @@
+/*********************************************************************************
+* Minimal Secure Transport Library
+*
+* Free for non-Commercial Use. Commercial Use requires a license from the author.
+*
+* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+*
+**********************************************************************************/
+
+
 #ifndef DAVIES_MEYER_HASH
 #define DAVIES_MEYER_HASH
 #include <memory.h>

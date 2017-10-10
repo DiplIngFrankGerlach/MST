@@ -1,3 +1,14 @@
+/*********************************************************************************
+* Minimal Secure Transport Library
+*
+* Free for non-Commercial Use. Commercial Use requires a license from the author.
+*
+* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+*
+**********************************************************************************/
+
+
+
 /* Test Code for the Hash-MAC function and the AuthPlaintext PDU */
 
 #include <assert.h>

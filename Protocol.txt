@@ -1,3 +1,12 @@
+/*********************************************************************************
+* Minimal Secure Transport Library
+*
+* Free for non-Commercial Use. Commercial Use requires a license from the author.
+*
+* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+*
+**********************************************************************************/
+
 
 Phase 1: Mask Counter Exchange
 
