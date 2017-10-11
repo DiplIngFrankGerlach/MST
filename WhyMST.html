@@ -1,0 +1,54 @@
+<html>
+
+<body>
+
+<h1>The Minimal Secure Transport Protocol</h1>
+By Dipl. Ing.(BA) Frank Gerlach (frankgerlach.tai@gmx.de)
+<p>
+The MST protocol has been designed in order to create a building block for a 
+more secure computing landscape. The main design objective has been simplicity,
+which directly translates into high security, because simple programs are 
+also easy to review and even prove correct in a mathematic sense.
+</p>
+
+<h1>Which Assurances Are Provided By MST ?</h1>
+Similar to SSL/TLS, MST assures that
+<list>
+  <li>messages are obfuscated</li>
+  <li>messages cannot be replayed by an attacker</li>
+  <li>messages cannot be modified by an attacker</li>
+  <li>messages cannot be constructed by an attacker</li>
+  <li>identical messages do not encrypt to identical ciphertext</li>
+</list>
+  
+<h1>Does MST Provide Asymmetric Cipher Functionality ?</h1>
+For the sake of simplicity (which translates into security), only
+symmetric ciphers (AES) are used. The transfer of symmetric keys
+is well understood even by novice users and it is possible to 
+use tools such as GPG/PGP for the purpose of key dissemination.
+
+
+
+<h1>Why not use existing Protocols like SSL/TLS or SSH ?</h1>
+
+<p>
+These protocols are highly complex and consequently require complex library code
+in order to realize the protocols. OpenSSL is at 400k lines of code and 
+had a large number of remotely exploitable bugs. Libraries of this size
+are very hard to review or prove correct. Even the "compact" TLS 
+implementation "s2n" of Amazon still has 27000 lines of code.
+</p>
+
+
+<p>
+MST has less than 400 lines of code (not counting the AES cipher which is used
+for encrpytion and hashing). This easily allows for review and correctness
+proofs are economically possible. 
+</p>
+
+
+
+
+</body>
+
+</html>
