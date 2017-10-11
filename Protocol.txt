@@ -30,7 +30,7 @@ AuthPlaintext ::= PlaintextToAuth DM_MAC(PlaintextToAuth)
 
 PlaintextToAuth ::= Length Plaintext Padding
 
-Length ::= 32 bit unsigned integer, Network Byte Order
+Length ::= 32 bit unsigned integer, Little Endian Encoding
 
 Padding ::= Octets of value 0 for padding to a multiple of 16
 
