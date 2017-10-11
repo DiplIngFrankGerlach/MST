@@ -36,11 +36,85 @@ void testProc(uint32_t testSize)
 
    uint8_t* plaintextBack;  
    uint32_t lengthPT;
+
+   //test:authPlaintext[6] ^= 1;
+
    assert( mstHash.checkAndExtractPlaintext(authPlaintext, lengthAuth,&plaintextBack,&lengthPT) );
    assert(testSize == lengthPT);
    assert(memcmp(testData,plaintextBack,testSize) == 0 );
 
    delete[] testData;
+}
+
+void encryptedCommunicationExample()
+{
+   uint8_t sharedKey[16] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0};
+
+   MST_Endpoint endpointA(sharedKey);
+   MST_Endpoint endpointB(sharedKey);
+
+   uint8_t mcA[16];
+   endpointA.generateMaskCounterExchange(mcA);
+
+   uint8_t mcB[16];
+   endpointB.generateMaskCounterExchange(mcB);
+
+   //exchange of masking counters
+   endpointA.decryptMaskCounterExchange(mcB);
+   endpointB.decryptMaskCounterExchange(mcA);
+ 
+   
+   //now we can securely encrypt with all assurances of the protocol
+   const char* plaintext = "Schiller, Goethe, Von der Vogelweide";
+   uint8_t* secureMessage;
+   uint32_t lengthSM;
+   uint32_t lp = strlen(plaintext)+1;
+   assert( endpointA.encryptToSecureMessage((uint8_t*)plaintext,lp,&secureMessage,&lengthSM) );
+   Util::dumpHex(secureMessage,lengthSM);
+
+   uint8_t* plaintextDec;
+   uint32_t lengthPT;
+   assert( endpointB.decryptSecureMessage(secureMessage,lengthSM,&plaintextDec,&lengthPT) );
+
+   cout << plaintextDec << endl;
+
+   assert( endpointA.encryptToSecureMessage((uint8_t*)plaintext,lp,&secureMessage,&lengthSM) );
+   Util::dumpHex(secureMessage,lengthSM);
+
+   cout << plaintextDec << endl;
+}
+
+void encryptedCommunicationFailTest()
+{
+   uint8_t sharedKey[16] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0};
+
+   MST_Endpoint endpointA(sharedKey);
+   MST_Endpoint endpointB(sharedKey);
+
+   uint8_t mcA[16];
+   endpointA.generateMaskCounterExchange(mcA);
+
+   uint8_t mcB[16];
+   endpointB.generateMaskCounterExchange(mcB);
+
+   //exchange of masking counters
+   endpointA.decryptMaskCounterExchange(mcB);
+   endpointB.decryptMaskCounterExchange(mcA);
+ 
+   
+   //now we can securely encrypt with all assurances of the protocol
+   const char* plaintext = "Schiller, Goethe, Von der Vogelweide";
+   uint8_t* secureMessage;
+   uint32_t lengthSM;
+   uint32_t lp = strlen(plaintext)+1;
+   assert( endpointA.encryptToSecureMessage((uint8_t*)plaintext,lp,&secureMessage,&lengthSM) );
+   
+   //flip a bit
+   secureMessage[0] ^= 1;   
+
+   uint8_t* plaintextDec;
+   uint32_t lengthPT;
+   assert( endpointB.decryptSecureMessage(secureMessage,lengthSM,&plaintextDec,&lengthPT) == false);
 }
 
 int main()
@@ -85,6 +159,37 @@ int main()
    testProc(256);
    testProc(2200);
    testProc(2048);
-   testProc(1000000);
+   //testProc(1000000);
 
+   {
+	   uint8_t ctr[]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+	   uint8_t desiredResult[]={2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+	   MST_Endpoint::incrementMC(ctr);
+	   assert(memcmp(ctr,desiredResult,16)==0);
+
+   }
+   {   
+	   uint8_t ctr[]={255,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+	   uint8_t desiredResult[]={0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+	   MST_Endpoint::incrementMC(ctr);
+
+	   assert(memcmp(ctr,desiredResult,16)==0);
+   }
+   {   
+	   uint8_t ctr[]={255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255};
+	   uint8_t desiredResult[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	   MST_Endpoint::incrementMC(ctr);
+
+	   assert(memcmp(ctr,desiredResult,16)==0);
+   }
+   {   
+	   uint8_t ctr[]={255,255,255,255,255,255,255,255,255,255,255,255,255,255,254,255};
+	   uint8_t desiredResult[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255};
+	   MST_Endpoint::incrementMC(ctr);
+
+	   assert(memcmp(ctr,desiredResult,16)==0);
+   }
+   encryptedCommunicationExample();
+   encryptedCommunicationFailTest();
+  
 }

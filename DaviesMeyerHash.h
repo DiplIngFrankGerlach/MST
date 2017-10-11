@@ -50,10 +50,12 @@ public:
       }
       memcpy(output,stateInPtr,HashWordSize);//stateInPtr is in fact the output here
       return true;
-   }
-
-    
+   }    
 };
+
+
+
+
 
 #endif
 
