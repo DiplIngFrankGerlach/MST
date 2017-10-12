@@ -151,6 +151,7 @@ class MST_Endpoint
    
  
 public:
+   /* method for incrementing an 128 bit counter */
    static void incrementMC(uint8_t* counter)
    {
        bool carry(false);
@@ -163,7 +164,9 @@ public:
        while(carry && (i < 16));
    }
 
-
+   /* Create an endpoint.
+      Must supply a 16 octet key/shared secret
+   */
    MST_Endpoint(const uint8_t* sharedSecret):_buffer(NULL),_bufferSize(0)
    {
         memcpy(_sharedSecret,sharedSecret,16);
@@ -178,6 +181,9 @@ public:
    
    /* generate the 16 octet MaskCounterExchange PDU 
       The caller must provide an 16 octet sized buffer
+
+      This method must be called before and encryption or decryption calls.
+      See also Protocol.txt
    */
    void generateMaskCounterExchange(uint8_t* maskCounterExchange)
    {
@@ -185,16 +191,25 @@ public:
       _maskCounterExchangeGenerated = true;
    }
 
+   /* decrypt and memorize the 16 octet MaskCounterExchange PDU of the partner endpoint.
+      The caller must provide an 16 octet sized buffer
+
+      This method must be called before and encryption or decryption calls.
+      See also Protocol.txt
+   */
    void decryptMaskCounterExchange(uint8_t* encryptedMaskCounterPartner)
    {
       aes_decrypt(encryptedMaskCounterPartner,_maskCounterPartner,_aesSchedule,128);
       _partnerMaskCounterExchangeDecrypted = true;
    }
 
+   /* Decrypt the SecuredMessage PDU received from the partner. 
+      Returns bool on successful unmaksing and validation (HMAC) of the decrypted PDU.
+   */
    bool decryptSecureMessage(uint8_t* securedMessage, 
                              uint32_t lengthSM,
                              uint8_t** plaintext,
-                             uint32_t* lengthPlaintext)
+                             uint32_t* lengthPlaintext) 
    {
       if( !_maskCounterExchangeGenerated || !_partnerMaskCounterExchangeDecrypted )  
       {
@@ -226,6 +241,10 @@ public:
       return false;
    }   
 
+   /*encrypt plaintext and generate the SecureMessage PDU. The resulting PDU 
+     must then be sent to the communications  partner via any suitable 
+     method of transport (e.g. TCP/IP, RS232, ATM, CAN,...)
+   */
    bool encryptToSecureMessage(uint8_t* plaintext,
                                uint32_t length,
                                uint8_t** securedMessage,
