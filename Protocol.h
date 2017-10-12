@@ -8,8 +8,11 @@
 #include "Util.h"
 #include "RandomSource.h"
 
-/* Class for generating and checking the AuthPlaintext PDU. Also used to extract the plaintext
-   again.
+/* Class for generating and checking the AuthPlaintext PDU(Protocol Data Unit). 
+   This class will generate the Authplaintext PDU and also check a given PDU
+   for correctness. Finally it extracts the plaintext from a correctly HMAC-ed
+   PDU.
+   Please also refer to Protocol.txt for details about this PDU.
 */
 class MST_Hash
 {
@@ -20,10 +23,14 @@ public:
    {
    }
    
-   bool createAuthPlaintext(uint8_t* sourcePlaintext,
-                            uint32_t length,
-                            uint8_t** outputBuffer,
-                            uint32_t* outputSize)
+   /* Create the AuthPlaintext PDU 
+      The call will return a buffer which is valid until the next call to a method
+      of this class. The buffer is managed by this class.
+   */
+   bool createAuthPlaintext(uint8_t* sourcePlaintext,//the plaintext
+                            uint32_t length,         //length of plaintext
+                            uint8_t** outputBuffer,  //typically a reference to a pointer
+                            uint32_t* outputSize)    //typically a reference to a uint32_t 
    {
         if( (length == 0) || (length > (UINT_MAX-32) ) )
         {
@@ -57,10 +64,15 @@ public:
         return true;
    }
 
-   bool checkAndExtractPlaintext(uint8_t*   authPlaintext,
-                                 uint32_t   length,
-                                 uint8_t**  plaintext,
-                                 uint32_t*  lengthPlaintext )
+   /* check the AuthPlaintext PDU and extract the plaintext of the HMAC is correct.
+      Return true for a correct HMAC.
+      The call will return a buffer which is valid until the next call to a method
+      of this class and will be managed by this class.
+   */
+   bool checkAndExtractPlaintext(uint8_t*   authPlaintext,   //AuthPlainText PDU
+                                 uint32_t   length,          //length of PDU
+                                 uint8_t**  plaintext,       //typically a reference to a pointer
+                                 uint32_t*  lengthPlaintext )//typically a reference to a uint32_t
    {
       *plaintext = NULL;
       if( length < 32 )
@@ -92,24 +104,35 @@ public:
    
 };
 
+
+/* This class realizes the MST protocol and provides all the high level method
+   calls for generating all PDUs(Protocol Data Unit) of the protocol.
+   It can be used for communication over all kinds of transport protocols such
+   as TCP/IP, RS232, ATM, Datex-P, CAN or the like.
+
+   Each of the two communication partners need one instance of this class in order
+   to set up a secured bidirectional communications channel.
+
+   Please refer to Protocol.txt and WhyMST.html for a conceptual description of 
+   the MST protocol.
+*/ 
 class MST_Endpoint
 {
-   uint8_t _sharedSecret[16];
-   uint8_t _maskCounterOwn[16];
-   uint8_t _maskCounterPartner[16];
+   uint8_t _sharedSecret[16];      //the secret key shared by the communication partners
+   uint8_t _maskCounterOwn[16];    //the MaskingCounter of this endpoint
+   uint8_t _maskCounterPartner[16];//the MaskingCounter of the other endpoint
 
-   //enum MST_State{PhaseSetupA, PhaseSetupB, PhaseCommunicating};
-   //MST_State _state;
-   unsigned int _aesSchedule[60];
 
-   bool _maskCounterExchangeGenerated;
-   bool _partnerMaskCounterExchangeDecrypted;
+   unsigned int _aesSchedule[60];  //AES cipher internal state (derived from _sharedSecret)
 
-   uint8_t* _buffer;
+   bool _maskCounterExchangeGenerated;        //internal state for consistency
+   bool _partnerMaskCounterExchangeDecrypted; //internal state for consistency
+
+   uint8_t* _buffer; 
    uint32_t _bufferSize;
 
    MST_Hash _mstHash;
-
+	
    bool ensureBufferSize(uint32_t sz)
    {
       if(_bufferSize < sz )
