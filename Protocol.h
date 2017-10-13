@@ -1,3 +1,12 @@
+/*********************************************************************************
+* Minimal Secure Transport Library
+*
+* Free for non-Commercial Use. Commercial Use requires a license from the author.
+*
+* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+*
+**********************************************************************************/
+
 #ifndef MST_Hash_header
 #define MST_Hash_header
 

@@ -1,8 +1,2 @@
-+ describe build requirements
-+ supply make file  
-+ more Unit Tests for each assurance
 + Wire Protocol
 + TCP Example 
-+ remove old files
-+ Implement RandomSource
-+ Add more comments to code
