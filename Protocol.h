@@ -205,12 +205,13 @@ public:
    }
 
    /* Decrypt the SecuredMessage PDU received from the partner. 
-      Returns bool on successful unmaksing and validation (HMAC) of the decrypted PDU.
+      Returns bool on successful decryption, masking and validation (HMAC) of the decrypted PDU.
+      The returned buffer is valid until the next method call of the class instance.
    */
-   bool decryptSecureMessage(uint8_t* securedMessage, 
-                             uint32_t lengthSM,
-                             uint8_t** plaintext,
-                             uint32_t* lengthPlaintext) 
+   bool decryptSecureMessage(uint8_t* securedMessage, //SecuredMessage PDU
+                             uint32_t lengthSM,       
+                             uint8_t** plaintext,  //plaintext output, typically a reference to a pointer
+                             uint32_t* lengthPlaintext) //plaintext length, typically a refrence to a uint32_t
    {
       if( !_maskCounterExchangeGenerated || !_partnerMaskCounterExchangeDecrypted )  
       {
