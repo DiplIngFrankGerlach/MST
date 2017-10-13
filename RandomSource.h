@@ -2,22 +2,35 @@
 #define RANDOMSOURCE_HEADER
 
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 /* a source of cryptographically strong pseudo-random numbers, 
    based on an initialization vector of 128bit Randomness supplied by
    the user or the operating system (e.g. /dev/random on Linux)
 
-   WARNING: ONLY A MOCKUP AT THE MOMENT !
+   Other sources of randomness, including Windows and stand-alone Randomness
+   Sources can be implemented on request. Please inquire at frankgerlach.tai@gmx.de
+   for that.
 */
 class RandomSource
 {
 public:
-    void getRandomNumber128(uint8_t* destination)
+    bool getRandomNumber128(uint8_t* destination)
     {
-        for(uint8_t i=0; i < 16; i++)
-        {
-             destination[i] = rand();
-        }
+        int randomFH = open("/dev/urandom", O_RDONLY);
+	if (randomFH >= 0)
+	{
+	    ssize_t result = read(randomFH, destination, 16);
+            close(randomFH);
+	    if (result == 16)
+	    {
+		return true;
+	    }
+	}
+        return false;
     }
 };
 

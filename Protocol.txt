@@ -7,6 +7,8 @@
 *
 **********************************************************************************/
 
+Protocol Description 
+====================
 
 Phase 1: Mask Counter Exchange
 
@@ -27,6 +29,8 @@ SecureMessage ::= AES( MaskedPlaintext, SharedSecret)
 MaskedPlaintext16 ::= AuthPlaintext16 ^ MaskCounter
 
 AuthPlaintext ::= PlaintextToAuth DM_MAC(PlaintextToAuth)
+
+DM_MAC = Davies-Meyer Message Authentication Code (HMAC)
 
 PlaintextToAuth ::= Length Plaintext Padding
 

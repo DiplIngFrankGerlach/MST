@@ -18,7 +18,7 @@
 #define HashWordSizeBits (HashWordSize * 8)
 
 
-/* Implement the Davies-Meyer Hash-Message Authentication Code algorithm based on AES. */
+/* Implement the Davies-Meyer Hash-Message Authentication Code(HMAC) algorithm based on AES. */
 class DM_Hash
 {
 public:

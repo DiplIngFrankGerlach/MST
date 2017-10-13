@@ -127,7 +127,7 @@ class MST_Endpoint
 
    bool _maskCounterExchangeGenerated;        //internal state for consistency
    bool _partnerMaskCounterExchangeDecrypted; //internal state for consistency
-
+   
    uint8_t* _buffer; 
    uint32_t _bufferSize;
 
@@ -170,10 +170,7 @@ public:
    MST_Endpoint(const uint8_t* sharedSecret):_buffer(NULL),_bufferSize(0)
    {
         memcpy(_sharedSecret,sharedSecret,16);
-        RandomSource rs;
-        rs.getRandomNumber128(_maskCounterOwn);
-        //_state = PhaseSetup;
-
+   
         aes_key_setup(_sharedSecret,_aesSchedule,128);
         _maskCounterExchangeGenerated = false;
         _partnerMaskCounterExchangeDecrypted = false;
@@ -187,8 +184,12 @@ public:
    */
    void generateMaskCounterExchange(uint8_t* maskCounterExchange)
    {
-      aes_encrypt(_maskCounterOwn,maskCounterExchange,_aesSchedule,128);
-      _maskCounterExchangeGenerated = true;
+       RandomSource rs;
+       if( rs.getRandomNumber128(_maskCounterOwn) )
+       {
+          aes_encrypt(_maskCounterOwn,maskCounterExchange,_aesSchedule,128);
+          _maskCounterExchangeGenerated = true;
+       }
    }
 
    /* decrypt and memorize the 16 octet MaskCounterExchange PDU of the partner endpoint.
