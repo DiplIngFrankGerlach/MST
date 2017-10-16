@@ -47,6 +47,7 @@ public:
         }
         if( _outputBufferSize < (length+32) )
         {
+           memset(_outputBuffer,0,_outputBufferSize);
            delete[] _outputBuffer;
            
            _outputBufferSize = length + 4 + 32;
@@ -106,7 +107,9 @@ public:
 
    ~MST_Hash()
    {
+      memset(_outputBuffer,0,_outputBufferSize);
       delete[] _outputBuffer;
+      _outputBuffer = NULL;
       _outputBufferSize = 0;
    }
    
@@ -146,6 +149,7 @@ class MST_Endpoint
    {
       if(_bufferSize < sz )
       {
+         memset(_buffer,0,_bufferSize);
          _bufferSize = sz;
          delete[] _buffer;
          _buffer = new uint8_t[_bufferSize];
@@ -183,6 +187,16 @@ public:
         aes_key_setup(_sharedSecret,_aesSchedule,128);
         _maskCounterExchangeGenerated = false;
         _partnerMaskCounterExchangeDecrypted = false;
+   }
+
+   ~MST_Endpoint()
+   {
+      memset(_buffer,0,_bufferSize);
+      delete[] _buffer;
+      //wipe cipher secrets
+      memset(_sharedSecret,0,16);
+      memset(_maskCounterOwn,0,16);
+      memset(_maskCounterPartner,0,16);
    }
    
    /* generate the 16 octet MaskCounterExchange PDU 
