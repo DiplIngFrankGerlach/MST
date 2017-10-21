@@ -26,7 +26,7 @@
 
 bool BufferedSocket::connect(const string& hostname,uint16_t portNum)
 {
-    struct sockaddr_in servAddr; /* Echo server address */
+   struct sockaddr_in servAddr; /* Echo server address */
  
    struct hostent* hostEntry = gethostbyname(hostname.c_str());
    if( hostEntry == NULL)

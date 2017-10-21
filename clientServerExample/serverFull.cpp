@@ -1,6 +1,6 @@
 
 /*********************************************************************************
-* A simple server, demonstrating the use of the MST crypto library 
+* Full featured Server, demonstrating the use of the MST crypto library 
 *
 *
 * Free for non-Commercial Use. Commercial Use requires a license from the author.
@@ -32,9 +32,7 @@ extern "C" {
 #include <iostream>
  
 #include "ThreadWorkQueue.h"
-#include "Protocol.h"
-#include "BufferedSocket.h"
-#include "Util.h"
+#include "MST_Socket.h"
 
 using namespace std;
 
@@ -65,46 +63,24 @@ void* workerProcedure(void*)
       int socket;
       __workQueue.getWork(socket);
       
-      BufferedSocket bSocket(socket);
+      MST_Socket mstSock(socket);
 
-      uint32_t partnerNumber;
-      if( readInteger32(bSocket,&partnerNumber) )
+      if(mstSock.connectAndStartup() )
       {
-
-         cout << "partnerNumber: " << partnerNumber << endl;
-        
-
-         uint8_t sharedKey[] = {0x9f,0x51,0xcf,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb3};
-         MST_Endpoint ep(sharedKey);
-
-         uint8_t mce[16];
-
-         if( bSocket.read(mce,16) )
-         {
-            cout << "X" << endl;
-            ep.decryptMaskCounterExchange(mce);
-            uint32_t l;
-
-            if( readInteger32(bSocket,&l) && (l < 100000))
-            {
-               cout << "X" << endl;
-               uint8_t* securedMessage = new uint8_t[l];
-               
-               bSocket.read(securedMessage,l);
-               
-               uint8_t* plaintext;
-               uint32_t ptLength;
-               if( ep.decryptSecureMessage(securedMessage,l,&plaintext,&ptLength) )
-               {
-                  cout << "plaintext: " << ((char*)plaintext) << endl;
-               }        
-            }
-         }
-      }
-         
-
+          string msg("hello from server");
+          if(mstSock.write((uint8_t*)msg.c_str(),msg.length()+1 ) ) 
+          {
+              uint8_t* reply(NULL);
+              uint32_t lengthReply;
+              cout << "SRV 5" << endl;
+              if( mstSock.read(&reply,&lengthReply) )
+              {
+                 cout << ((const char*)reply) << endl;
+              }
+          }
+      }   
        
-  }//end while(true)
+   }//end while(true)
     
    return NULL;
 }
@@ -180,7 +156,7 @@ int main(void)
 
 
     server_sock = createSocketAndListen(&port);
-   
+    
     while (1)//accept() loop
     {
       client_sock = accept(server_sock,
