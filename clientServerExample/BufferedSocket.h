@@ -1,3 +1,13 @@
+/*********************************************************************************
+* BufferedSocket, a class/module for simple TCP communications
+*
+*
+* Free for non-Commercial Use. Commercial Use requires a license from the author.
+*
+* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+*
+**********************************************************************************/
+
 #ifndef BUFFERED_SOCKET_HDR
 #define BUFFERED_SOCKET_HDR
 
