@@ -236,7 +236,7 @@ public:
                              uint8_t** plaintext,  //plaintext output, typically a reference to a pointer
                              uint32_t* lengthPlaintext) //plaintext length, typically a refrence to a uint32_t
    {
-      if( !_maskCounterExchangeGenerated || !_partnerMaskCounterExchangeDecrypted )  
+      if( !_partnerMaskCounterExchangeDecrypted )  
       {
          return false;
       }
@@ -275,7 +275,7 @@ public:
                                uint8_t** securedMessage,
                                uint32_t* lengthSM)
    {
-       if( !_maskCounterExchangeGenerated || !_partnerMaskCounterExchangeDecrypted )  
+       if( !_maskCounterExchangeGenerated )  
        {
           return false;
        }

@@ -1,12 +1,13 @@
-/* Einfacher und sicherer Webserver, in C++.
 
-   Erweiterbar durch benutzerdefinierten C++ Code.
-
-   (C) Frank Gerlach 2017, frankgerlach.tai@gmx.de
-
-   Kommerzielle Nutzung erfordert eine kostenpflichtige Lizenz.
-
-*/
+/*********************************************************************************
+* A simple server, demonstrating the use of the MST crypto library 
+*
+*
+* Free for non-Commercial Use. Commercial Use requires a license from the author.
+*
+* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+*
+**********************************************************************************/
 
 
 
@@ -29,18 +30,22 @@ extern "C" {
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <iostream>
-#include "ThreadWorkQueue.h"
  
+#include "ThreadWorkQueue.h"
+#include "Protocol.h"
+#include "BufferedSocket.h"
+#include "Util.h"
 
 using namespace std;
 
  
 
 ThreadWorkQueue<int> __workQueue; // a queue of socket handles to process by Worker Threads
-const int __numberOfWorkers = 10;
+const int __numberOfWorkers = 10;//number of worker threads
 pthread_t  __workers[__numberOfWorkers]; //thread data structures
 
 
+/* print a fatal error message and stop the program */
 void fatalError(const char* errorMessage)
 {
    perror(errorMessage);
@@ -48,32 +53,63 @@ void fatalError(const char* errorMessage)
 }
 
 
-class SocketSchliesserHelfer
-{
-   int m_socket;
-public:
-   SocketSchliesserHelfer(int socket): m_socket(socket)
-   {
-   }
-   ~SocketSchliesserHelfer()
-   {
-      close(m_socket);
-   }
-};
-
+/* The thread worker procedure, which receives work (connected socket) via the __workQueue.
+   It demonstrates how to set up an MST Endpoint and how to transfer a message securely from
+   client to server.
+   Note that the lookup of shared key based on the partnerNumber is not yet implemented
+*/
 void* workerProcedure(void*)
 {
-   int socket;
-   __workQueue.getWork(socket);
-   
-   const char* msg= "hello from worker";
-   write(socket,msg,strlen(msg));
+   while(true)
+   {
+      int socket;
+      __workQueue.getWork(socket);
+      
+      BufferedSocket bSocket(socket);
 
-   close(socket);
+      uint32_t partnerNumber;
+      if( readInteger32(bSocket,&partnerNumber) )
+      {
+
+         cout << "partnerNumber: " << partnerNumber << endl;
+        
+
+         uint8_t sharedKey[] = {0x9f,0x51,0xcf,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb3};
+         MST_Endpoint ep(sharedKey);
+
+         uint8_t mce[16];
+
+         if( bSocket.read(mce,16) )
+         {
+            cout << "X" << endl;
+            ep.decryptMaskCounterExchange(mce);
+            uint32_t l;
+
+            if( readInteger32(bSocket,&l) && (l < 100000))
+            {
+               cout << "X" << endl;
+               uint8_t* securedMessage = new uint8_t[l];
+               
+               bSocket.read(securedMessage,l);
+               
+               uint8_t* plaintext;
+               uint32_t ptLength;
+               if( ep.decryptSecureMessage(securedMessage,l,&plaintext,&ptLength) )
+               {
+                  cout << "plaintext: " << ((char*)plaintext) << endl;
+               }        
+            }
+         }
+      }
+         
+
+       
+  }//end while(true)
+    
    return NULL;
 }
 
-
+/* start all the worker threads */
 void startWorkerThreads()
 {
    for(uint32_t i=0; i < __numberOfWorkers; i++)
@@ -84,7 +120,7 @@ void startWorkerThreads()
 
 
 
-
+/* create a server socket which can be used for accept() calls */
 int createSocketAndListen(u_short *port)
 {
     int acceptPort = 0;
@@ -130,9 +166,10 @@ int createSocketAndListen(u_short *port)
 
 
   
-
+/* start up the server */
 int main(void)
 {
+     
     startWorkerThreads();
 
     int server_sock = -1;
@@ -145,7 +182,7 @@ int main(void)
     server_sock = createSocketAndListen(&port);
     printf("httpd running on port %d\n", port);
 
-    while (1)
+    while (1)//accept() loop
     {
       client_sock = accept(server_sock,
                           (struct sockaddr *)&client_name,
