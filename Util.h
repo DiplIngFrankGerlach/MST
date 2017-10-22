@@ -30,7 +30,7 @@ class Util
         cout << char('A'-10+value);
       }
   }
-  static void dumpHex(uint8_t* buffer,uint32_t length)
+  static void dumpHex(const uint8_t* buffer,uint32_t length)
   {
      for(uint32_t i=0; i < length; i++)
      {

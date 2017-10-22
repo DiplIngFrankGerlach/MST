@@ -8,7 +8,7 @@ INCLUDES= -I.. -I../aes
 
 CFLAGS= -g -Wall $(INCLUDES)
 #For production: CFLAGS= -O2 -Wall
-GPP_FLAGS = -g -Wall $(INCLUDES)
+GPP_FLAGS = -g -Wall $(INCLUDES) -std=c++11
 
 OBJECTS=aes.o server.o BufferedSocket.o
 
@@ -17,6 +17,7 @@ CLIENT_OBJECTS = client.o aes.o BufferedSocket.o
 OBJECTS_SERVER_FULL = aes.o serverFull.o BufferedSocket.o MST_Socket.o
 OBJECTS_CLIENT_FULL = aes.o clientFull.o BufferedSocket.o MST_Socket.o
 
+OBJECTS_KR_TEST = KeyReader.o krTest.o
 
 
 server.o: ThreadWorkQueue.h ../Protocol.h BufferedSocket.h ../aes/aes.h BufferedSocket.o
@@ -46,6 +47,9 @@ client: $(CLIENT_OBJECTS)
 
 clientFull: $(OBJECTS_CLIENT_FULL)
 	g++ -g $(OBJECTS_CLIENT_FULL) -o clientFull 
+
+krTest: $(OBJECTS_KR_TEST)
+	g++ -g $(OBJECTS_KR_TEST) -o krTest 
 
 clean:
 	rm $(OBJECTS) $(CLIENT_OBJECTS) $(OBJECTS_SERVER_FULL) $(OBJECTS_CLIENT_FULL) server client serverFull clientFull
