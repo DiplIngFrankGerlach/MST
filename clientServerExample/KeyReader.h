@@ -1,3 +1,14 @@
+/*********************************************************************************
+* Class for reading pre-shared keys from file. 
+*
+*
+* Free for non-Commercial Use. Commercial Use requires a license from the author.
+*
+* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+*
+**********************************************************************************/
+
+
 #ifndef KEY_READER_HEADER
 #define KEY_READER_HEADER
 
@@ -8,7 +19,7 @@
 
 using namespace std;
 
-
+/* a class encapsulating a 128 bit symmetric key, needed for unordered_map */
 class PresharedKey
 {
    uint8_t _key[16];
@@ -72,5 +83,7 @@ public:
 
    bool getKeyForPartnerID(uint32_t partnerID, uint8_t** key);
 };
+
+extern KeyReader __keyReader;
 
 #endif

@@ -33,6 +33,7 @@ extern "C" {
  
 #include "ThreadWorkQueue.h"
 #include "MST_Socket.h"
+#include "KeyReader.h"
 
 using namespace std;
 
@@ -72,7 +73,7 @@ void* workerProcedure(void*)
           {
               uint8_t* reply(NULL);
               uint32_t lengthReply;
-              cout << "SRV 5" << endl;
+              //cout << "SRV 5" << endl;
               if( mstSock.read(&reply,&lengthReply) )
               {
                  cout << ((const char*)reply) << endl;
@@ -154,28 +155,27 @@ int main(void)
     struct sockaddr_in client_name;
     socklen_t client_name_len = sizeof(client_name);
 
-
-    server_sock = createSocketAndListen(&port);
-    
-    while (1)//accept() loop
+    if( __keyReader.readPresharedKeys() )
     {
-      client_sock = accept(server_sock,
-                          (struct sockaddr *)&client_name,
-                          &client_name_len);
-
-      
-      __workQueue.insertWork(client_sock);
-      
-
-      if (client_sock == -1)
-      {
-        perror("accept failed");
-      }
-
+       server_sock = createSocketAndListen(&port);
        
+       while (1)//accept() loop
+       {
+         client_sock = accept(server_sock,
+                             (struct sockaddr *)&client_name,
+                             &client_name_len);    
+         __workQueue.insertWork(client_sock);
+         
+
+         if (client_sock == -1)
+         {
+           perror("accept failed");
+         }
+
+          
+       }
+
+       close(server_sock);
     }
-
-    close(server_sock);
-
     return(0);
 }

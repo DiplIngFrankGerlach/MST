@@ -29,24 +29,24 @@ void die(const char *errorMessage)
 int main(int argc, char *argv[])
 {
     
-    string hn("192.168.0.18");
+    string hn("127.0.0.1");
 
     uint8_t sharedKey[] = {0x9f,0x51,0xcf,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb3};
     
     MST_Socket mstSock(sharedKey,hn,1234,1001);
-    cout << "C1" << endl;
+    //cout << "C1" << endl;
     if( mstSock.connectAndStartup() )
     {
-       cout << "C2" << endl;
+       //cout << "C2" << endl;
        string message("I am the client, hello");
        if(mstSock.write( (uint8_t*)message.c_str(),message.length()+1) ) 
        {
-          cout << "C3" << endl;
+          //cout << "C3" << endl;
           uint8_t* reply(NULL);
           uint32_t replyLength(0);
           if( mstSock.read(&reply,&replyLength) )
           {
-             cout << "C4" << endl;
+             //cout << "C4" << endl;
              cout << ((const char*)reply) << endl;
           }
        }

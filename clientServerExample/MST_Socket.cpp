@@ -12,6 +12,7 @@
 #include <limits.h>
 #include "MST_Socket.h"
 #include "Util.h"
+#include "KeyReader.h"
 
 
 MST_Socket::MST_Socket(int socket):_mstEP(NULL),
@@ -19,22 +20,23 @@ MST_Socket::MST_Socket(int socket):_mstEP(NULL),
                                    _port(USHRT_MAX),
                                    _partnerNumber(UINT_MAX),
                                    _readBuffer(NULL),
-                                   _readBufferSize(0)
+                                   _readBufferSize(0),
+                                   _isServer(true)
 {
 }
 
 MST_Socket::MST_Socket(uint8_t* key,
                        string hostname,
                        uint16_t port,
-                       uint32_t partnerNumber):_hostname(hostname),
+                       uint32_t partnerNumber):_mstEP(NULL),
+                                               _hostname(hostname),
                                                _port(port),
                                                _partnerNumber(partnerNumber),
                                                _readBuffer(NULL),
-                                               _readBufferSize(0)
+                                               _readBufferSize(0),
+                                               _isServer(false)
 {
-   _mstEP = new MST_Endpoint(key);
-
-
+   memcpy(_clientKey,key,16);
 }
 
 
@@ -51,48 +53,51 @@ void MST_Socket::ensureReadBufferSize(uint32_t size)
 /* performs the connect (if necessary) and the initial cryptographic handshake */
 bool MST_Socket::connectAndStartup()
 {
-   if( _hostname.length() > 0 )
+   if( !_isServer )
    {
      //client case
      if( !_bufSocket.connect(_hostname,_port) )
      {
-        cout << "F1" << endl;  
+        //cout << "F1" << endl;  
         return false;
-     }  
+     } 
+     _mstEP = new MST_Endpoint(_clientKey); 
    }
-   else
-   {
-      //server case
-
-      //missing: read sharedKey from keyfile (see also partnerNumber below !!)
-      uint8_t sharedKey[] = {0x9f,0x51,0xcf,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb3};
-         
-      _mstEP = new MST_Endpoint(sharedKey);
-   }
-   cout << "S1" << endl;
+   
+   //cout << "S1" << endl;
    if( !(writeInteger32(_bufSocket,_partnerNumber) && _bufSocket.flush() ) )
    {
      return false;
    }
 
-   cout << "S2" << endl;
+   //cout << "S2" << endl;
 
    //read partner number
    uint32_t partnerNumberRead;
    if( readInteger32(_bufSocket,&partnerNumberRead) )
    {
-      cout << "S3" << endl;
+      if( _isServer )
+      {
+         uint8_t* presharedKey(NULL);
+         if( __keyReader.getKeyForPartnerID(partnerNumberRead,&presharedKey) )
+         {         
+            _mstEP = new MST_Endpoint(presharedKey);
+         }
+         else return false;
+      }
+
+      //cout << "S3" << endl;
       //exchange Mask Counters
       uint8_t mce[16];
       _mstEP->generateMaskCounterExchange(mce);
 
       if( _bufSocket.write(mce,16) && _bufSocket.flush() )
       {
-          cout << "S4" << endl;
+          //cout << "S4" << endl;
           uint8_t mcePartner[16];
           if( _bufSocket.read(mcePartner,16) )
           {
-              cout << "S5" << endl;
+              //cout << "S5" << endl;
               _mstEP->decryptMaskCounterExchange(mcePartner);
               return true;
           }

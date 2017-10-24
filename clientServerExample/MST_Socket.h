@@ -30,6 +30,9 @@ class MST_Socket
    uint8_t* _readBuffer;
    uint32_t _readBufferSize;
 
+   bool _isServer;
+   uint8_t _clientKey[16];
+   
    void ensureReadBufferSize(uint32_t size);
 public:
    //the client constructor

@@ -14,8 +14,8 @@ OBJECTS=aes.o server.o BufferedSocket.o
 
 CLIENT_OBJECTS = client.o aes.o BufferedSocket.o
 
-OBJECTS_SERVER_FULL = aes.o serverFull.o BufferedSocket.o MST_Socket.o
-OBJECTS_CLIENT_FULL = aes.o clientFull.o BufferedSocket.o MST_Socket.o
+OBJECTS_SERVER_FULL = aes.o serverFull.o BufferedSocket.o MST_Socket.o KeyReader.o
+OBJECTS_CLIENT_FULL = aes.o clientFull.o BufferedSocket.o MST_Socket.o KeyReader.o
 
 OBJECTS_KR_TEST = KeyReader.o krTest.o
 

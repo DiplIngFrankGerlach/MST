@@ -1,4 +1,12 @@
-
+/*********************************************************************************
+* Class for reading pre-shared keys from file. 
+*
+*
+* Free for non-Commercial Use. Commercial Use requires a license from the author.
+*
+* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+*
+**********************************************************************************/
 #include <iostream>
 #include <unistd.h>
 #include <stdio.h>
@@ -254,5 +262,10 @@ KeyReader::~KeyReader()
    close(_fileHandle);
    _fileHandle = 0;   
 }
+
+
+KeyReader __keyReader;
+
+
 
 
