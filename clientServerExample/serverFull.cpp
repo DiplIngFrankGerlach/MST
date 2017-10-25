@@ -55,7 +55,6 @@ void fatalError(const char* errorMessage)
 /* The thread worker procedure, which receives work (connected socket) via the __workQueue.
    It demonstrates how to set up an MST Endpoint and how to transfer a message securely from
    client to server.
-   Note that the lookup of shared key based on the partnerNumber is not yet implemented
 */
 void* workerProcedure(void*)
 {
