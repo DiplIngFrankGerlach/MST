@@ -42,4 +42,4 @@ proxyServer: $(OBJECTS_PROXY_SERVER)
 	g++ $(OBJECTS_PROXY_SERVER) -pthread -o proxyServer
 
 clean:
-	rm $(OBJECTS_SERVER) tcpServerTest
+	rm $(OBJECTS_SERVER) $(OBJECTS_PROXY_CLIENT) $(OBJECTS_PROXY_SERVER) proxyClient proxyServer tcpServerTest $(OBJS_TCP_CLIENT)
