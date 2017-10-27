@@ -24,6 +24,22 @@ KeyReader::KeyReader():_fileHandle(-1),_readBuffer(NULL),_bufferValid(0),_readPt
    
 }
 
+bool KeyReader::loadOneKeyToBuffer(const char* asciiRepresentation)
+{
+   const int lengthOneKey(16*2+15);
+   if( strlen(asciiRepresentation) == lengthOneKey )
+   {
+      memcpy(_readBuffer,asciiRepresentation,lengthOneKey);
+      _bufferValid = lengthOneKey;
+      _readPtr = 0;
+      if( getChar() )
+      {
+        return true;
+      }
+   }
+   return false;
+}
+
 
 bool KeyReader::fillBuffer()
 {

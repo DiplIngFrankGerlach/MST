@@ -6,9 +6,15 @@ VPATH:=../aes
 
 INCLUDES= -I.. -I../aes
 
+#for debugging:
 CFLAGS= -g -Wall $(INCLUDES)
-#For production: CFLAGS= -O2 -Wall
 GPP_FLAGS = -g -Wall $(INCLUDES) -std=c++11
+
+
+#for production:
+#GPP_FLAGS = -O2 -Wall $(INCLUDES) -std=c++11
+#CFLAGS= -O2 -Wall
+
 
 OBJECTS=aes.o server.o BufferedSocket.o
 

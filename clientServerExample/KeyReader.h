@@ -71,13 +71,17 @@ class KeyReader
 
    bool getChar();
    bool readNumber(uint32_t* number);
-   bool readPSKey(uint8_t* key);
+   
 
    
 public:
    KeyReader();
 
    ~KeyReader();
+
+   bool readPSKey(uint8_t* key);
+
+   bool loadOneKeyToBuffer(const char* asciiRepresentation);
 
    bool readPresharedKeys();
 

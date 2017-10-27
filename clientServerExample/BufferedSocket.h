@@ -102,7 +102,10 @@ public:
    /* connect to a server given by DNS name */
    bool connect(const string& hostname,uint16_t portNum);
 
-
+   int getRawSocket()
+   {
+      return _socket;
+   }
 
 
    ~BufferedSocket()
