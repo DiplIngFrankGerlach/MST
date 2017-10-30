@@ -1,0 +1,87 @@
+<html>
+
+<body>
+
+<h1>Methods For Symmetric Key Distribution</h1>
+
+<p>By Dipl. Ing.(BA) Frank Gerlach (frankgerlach.tai@gmx.de)</p>
+
+This paper will discuss various methods for the distribution of symmetric keys
+from centralized server systems to the users of the server/service. I take 
+a pragmatic approach instead of a technology-driven one. Overly complex
+technologies have proven to be faulty in their implementation.
+
+<h2>Structure of a symmetric key</h2>
+A symmetric key is typically between 128 and 256 bits of random number. This
+can be encoded in 32 to 64 hexadecimal characters. 
+
+<h2>1. Postal System/Letters</h2>
+
+Modern society has been trusting the postal system for at least 100 years
+with the communication of confidential information such as bank 
+statements, lawyer's letters, insurance policies and the like.
+This means that it would be an acceptable risk to also 
+use the postal system for transport of symmetric keys used for
+banking, insurance or communications with lawyers.
+
+<h2>1.2 Postal Letter Key Transfer Details</h2>
+As an additional security measure, keys transferred in postal letters should
+be protected using 
+<list>
+  <li>sealed letters</li>
+  <li>key-printouts which are protected with a rub-off-surface</li>
+  <li>the paper used should use watermarks of the institution</li>
+  <li>measures which prevent attacks based on powerful lights/x-rays shining through the sealed envelope</li>
+  <li>thick papers for both envelope and the paper with the key itself</li>
+</list>
+Similar systems are already used by German banks for the purpose of communicating
+Bank Account passwords to their customers. Note that actual transfer usually requires
+additional factors such as TAN Generators or codes sent via mobile phone.
+
+
+<h2>2. Key Distribution in Branch Offices, Pharmacies, MD's practice, Town Hall etc</h2>
+Many if not most existing businesses and agencies have offices in the vicinity of the
+user. A very secure way of handing out key material is to print it out in a branch office
+and handing it over to customers. The customer is authenticated by presenting ID and/or
+is personally known for years and does not need ID. Banks use this method for hundreds
+of years now without major trust problems.
+
+<h2>3. End User Authentication</h2>
+For applications such as Banking, some postal services already offer User Authentication
+Services. This means that the post offices can verify the identity of a person using
+the person's ID documents. Receivers of the authentication procedure are banks,
+insurance companies and similar institutions. In Germany this system is called
+"PostIdent".
+
+<h2>4. Kerberos</h2>
+
+The Kerberos system is an example of a system for automatic symmetric key material distribution
+from servers to client systems. Unfortunately, its implementations contained much
+more exploitable bugs than acceptable.
+
+<h2>5. Key Material Distribution Officers</h2>
+
+<p>Banks, Firms, Government offices usually have sufficient personell in order to 
+designate about 3 percent of personell as Key Material Distribution Officers
+(KMDO). A KMDO will supply Key Material for other employees of the 
+organisation, facilitating access to centralized systems such as 
+Email, ERP, Accounting, File Sharing and all line-of-business applications.</p>
+
+<p>The KMDO will use a Secure Messaging Application(SMA), which is only used for
+communicating key Material. Unlike an Email system, it will be very simplistic
+and thereby secure. For example, the message character set will be limited 
+to numbers, alphabetic characters and a few select special characters.
+The keys for the SMA itself will be communicated to the KMDO physically visiting
+the KMDO service center.</p>
+
+<h2>6. Courier</h2>
+Communication of key material and cipher machines by Courier is a widely used
+approach in the diplomatic sphere. It can easily be used by large firms or
+government agencies in order to transfer key material.
+
+<h2>7. Personal Contact And Acquaintance</h2>
+
+
+</body>
+
+</html>
