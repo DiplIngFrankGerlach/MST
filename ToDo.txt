@@ -1,2 +1,2 @@
 + Wire Protocol
-+ TCP Example 
++ Exceptions in case of heap memory exhaustion
