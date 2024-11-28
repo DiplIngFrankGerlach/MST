@@ -112,7 +112,7 @@ bool MST_Socket::write(uint8_t* buffer, uint32_t length)
     {
        uint8_t* secureMessage(NULL);
        uint32_t lengthSM(0);
-       if( _mstEP->encryptToSecureMessage(buffer,length,&secureMessage,&lengthSM) )
+       if( (_mstEP != NULL) && _mstEP->encryptToSecureMessage(buffer,length,&secureMessage,&lengthSM) )
        {
             if( writeInteger32(_bufSocket,lengthSM) )
             {
@@ -136,7 +136,7 @@ bool MST_Socket::read(uint8_t** buffer, uint32_t* length)
           ensureReadBufferSize(smLength);
           if( _bufSocket.read(_readBuffer,smLength) )
           {
-              if( _mstEP->decryptSecureMessage(_readBuffer,smLength,buffer,length) )
+              if( (_mstEP != NULL ) && _mstEP->decryptSecureMessage(_readBuffer,smLength,buffer,length) )
               {
                   return true;
               }
