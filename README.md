@@ -13,7 +13,7 @@ sicheren Chiffriersystems können alle diese Systeme sicher ferngesteuert werden
  - unterschiedliche Verschlüsselung identischer Klartexte
  - verhindert Abspielangriffe(Replay Attack)
 
-##Chiffriertechnik
+## Chiffriertechnik
 Rein symmetrisches Chiffriersystem(auf Grundlage von z.B. AES, 3DES, LIBELLE)
 
 ## Umfang
@@ -24,14 +24,14 @@ Aufgrund minimalem Umfangs mathematisch als korrekt beweisbar. Im Gegensatz dazu
 80 bis 200 mal größer und sehr schwer als korrekt(=sicher) zu beweisen. In der Vergangenheit hatten alle
 SSL-Systeme schwerste Sicherheitslücken wie z.B. HEARTBLEED
 
-•	Ideale Applikationen:
-o	Satelliten-Steuerung
-o	Industrielle Fernsteuerung von Prozessrechnern, SPS usw.
-o	Steuerung von Netz-Komponenten in Stromnetz, Gasnetz, Wassernetz
-o	Management-Fernsteuer-Schnittstellen von 
+## Ideale Applikationen:
+- Satelliten-Steuerung
+- Industrielle Fernsteuerung von Prozessrechnern, SPS usw.
+- Steuerung von Netz-Komponenten in Stromnetz, Gasnetz, Wassernetz
+- Management-Fernsteuer-Schnittstellen von 
 
-	Firewalls
-	Server-Rechner im Rechenzentrum
-	Router
-	Switches
-o	Ferngesteuerte Rechner-Desktops (MS RDP und X11)
+  -Firewalls
+  - Server-Rechner im Rechenzentrum
+  - Router
+  - Switches
+  - Ferngesteuerte Rechner-Desktops (MS RDP und X11)
