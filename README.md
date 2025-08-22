@@ -1,4 +1,7 @@
 # Minimales Chiffriersystem
+
+Autor: Dipl. Ing. Frank Gerlach
+
 ## Übersicht
 Eine Vielzahl moderner Systeme muss über Funkverbindungen oder unsichere Fernmeldenetze ferngesteuert werden. 
 Diese Fernsteuer-Schnittstellen sind bislang vielfach schlecht gesichert. Mit Hilfe eines einzigen, minimalen, beweisbar 
