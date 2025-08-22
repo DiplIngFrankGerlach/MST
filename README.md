@@ -28,9 +28,8 @@ SSL-Systeme schwerste Sicherheitslücken wie z.B. HEARTBLEED
 - Satelliten-Steuerung
 - Industrielle Fernsteuerung von Prozessrechnern, SPS usw.
 - Steuerung von Netz-Komponenten in Stromnetz, Gasnetz, Wassernetz
-- Management-Fernsteuer-Schnittstellen von 
-
-  -Firewalls
+- Management-Fernsteuer-Schnittstellen von
+  - Firewalls
   - Server-Rechner im Rechenzentrum
   - Router
   - Switches
