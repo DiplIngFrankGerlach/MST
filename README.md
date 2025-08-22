@@ -1,6 +1,6 @@
 # Minimales Chiffriersystem / Minumum Secure Transport - MST
 
-Autor: Dipl. Ing. Frank Gerlach
+Autor: Dipl. Ing. Frank Gerlach (https://di-fg.de)
 
 ## Übersicht
 Eine Vielzahl moderner Systeme muss über Funkverbindungen oder unsichere Fernmeldenetze ferngesteuert werden. 
