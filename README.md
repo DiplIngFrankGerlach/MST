@@ -34,3 +34,6 @@ SSL-Systeme schwerste Sicherheitslücken wie z.B. HEARTBLEED
   - Router
   - Switches
   - Ferngesteuerte Rechner-Desktops (MS RDP und X11)
+    
+## Weitere Dokumente
+https://di-fg.de/MinimalesChiffrierSystem.html
