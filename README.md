@@ -7,11 +7,11 @@ Eine Vielzahl moderner Systeme muss über Funkverbindungen oder unsichere Fernme
 Diese Fernsteuer-Schnittstellen sind bislang vielfach schlecht gesichert. Mit Hilfe eines einzigen, minimalen, beweisbar 
 sicheren Chiffriersystems können alle diese Systeme sicher ferngesteuert werden.
 
-•	Bietet 
-o	Vertraulichkeit
-o	Authentizität
-o	unterschiedliche Verschlüsselung identischer Klartexte
-o	verhindert Abspielangriffe(Replay Attack)
+- Bietet
+ - Vertraulichkeit
+ - Authentizität
+ - unterschiedliche Verschlüsselung identischer Klartexte
+ - verhindert Abspielangriffe(Replay Attack)
 
 •	Rein symmetrisches Chiffriersystem(auf Grundlage von z.B. AES, 3DES, LIBELLE)
 
