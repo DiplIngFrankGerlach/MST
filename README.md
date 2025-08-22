@@ -7,7 +7,7 @@ Eine Vielzahl moderner Systeme muss über Funkverbindungen oder unsichere Fernme
 Diese Fernsteuer-Schnittstellen sind bislang vielfach schlecht gesichert. Mit Hilfe eines einzigen, minimalen, beweisbar 
 sicheren Chiffriersystems können alle diese Systeme sicher ferngesteuert werden.
 
-- Bietet
+## Garantien des Chiffriersystems
  - Vertraulichkeit
  - Authentizität
  - unterschiedliche Verschlüsselung identischer Klartexte
