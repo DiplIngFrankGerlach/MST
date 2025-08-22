@@ -1,4 +1,4 @@
-# Minimales Chiffriersystem
+# Minimales Chiffriersystem / Minumum Secure Transport - MST
 
 Autor: Dipl. Ing. Frank Gerlach
 
