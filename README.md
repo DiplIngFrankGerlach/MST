@@ -13,11 +13,16 @@ sicheren Chiffriersystems können alle diese Systeme sicher ferngesteuert werden
  - unterschiedliche Verschlüsselung identischer Klartexte
  - verhindert Abspielangriffe(Replay Attack)
 
-•	Rein symmetrisches Chiffriersystem(auf Grundlage von z.B. AES, 3DES, LIBELLE)
+##Chiffriertechnik
+Rein symmetrisches Chiffriersystem(auf Grundlage von z.B. AES, 3DES, LIBELLE)
 
-•	Minimaler Umfang von weniger als 2000 Zeilen C++. 
+## Umfang
+Minimaler Umfang von weniger als 2000 Zeilen C++. 
 
-•	Aufgrund minimalem Umfangs mathematisch als korrekt beweisbar. Im Gegensatz dazu sind OpenSSH und OpenSSL 80 bis 200 mal größer und sehr schwer als korrekt(=sicher) zu beweisen.
+## Im Vergleich zu anderen Chiffriersystemen
+Aufgrund minimalem Umfangs mathematisch als korrekt beweisbar. Im Gegensatz dazu sind OpenSSH und OpenSSL 
+80 bis 200 mal größer und sehr schwer als korrekt(=sicher) zu beweisen. In der Vergangenheit hatten alle
+SSL-Systeme schwerste Sicherheitslücken wie z.B. HEARTBLEED
 
 •	Ideale Applikationen:
 o	Satelliten-Steuerung
