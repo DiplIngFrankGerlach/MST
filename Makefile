@@ -8,9 +8,16 @@ CFLAGS= -g -Wall
 #For production: CFLAGS= -O2 -Wall
 GPP_FLAGS = -g -Wall
 
-OBJECTS = aes.o SampleAndTesting.o UnitTest.o
+OBJECTS = aes.o SampleAndTesting.o UnitTest.o GeneralUtil.o
 
 OBJECTS_EXAMPLE = aes.o Example1.o
+
+
+aes.c:aes.h
+
+SampleAndTesting.o:Protocol.h aes.h GeneralUtil.h
+
+UnitTest.o:Protocol.h RandomSource.h TCPUtil.h UnitTest.h Util.h GeneralUtil.h
 
 %.o: %.c
 #	g++ $(GPP_FLAGS) -I./aes -c -o $@ $< 

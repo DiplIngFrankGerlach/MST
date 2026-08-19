@@ -3,7 +3,7 @@
 *
 * Free for non-Commercial Use. Commercial Use requires a license from the author.
 *
-* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2026 Frank Gerlach, frankgerlach.tai@gmx.de
 *
 **********************************************************************************/
 
@@ -14,16 +14,16 @@
 #include "Util.h"
 #include "aes.h"
 
-#define HashWordSize 16
+#define HashWordSize 32
 #define HashWordSizeBits (HashWordSize * 8)
 
 
-/* Implement the Davies-Meyer Hash-Message Authentication Code(HMAC) algorithm based on AES. */
+/* Implement the Davies-Meyer Hash Function based on AES */
 class DM_Hash
 {
 public:
 
-   /* hash a multiple of 16 octets, output must be 16 octet buffer */
+   /* hash a multiple of 32 octets, output must be 32 octet buffer */
    static bool hash(const uint8_t* input, uint32_t length, uint8_t* output)
    {
       if( (length == 0) || ((length & (HashWordSize-1)) != 0) )
@@ -45,7 +45,19 @@ public:
           aes_encrypt(stateInPtr, 
                       stateOutPtr,
                       schedule,  
-                      HashWordSizeBits) ;
+                      16) ;
+
+          aes_encrypt(stateInPtr  + 16, 
+                      stateOutPtr + 16,
+                      schedule,  
+                      16) ;
+
+          //H[i] = E(PT,H[i-1]) XOR H[i-1]
+          for( uint32_t j=0; j < HashWordSize; j++)
+          {
+             stateOutPtr[j] ^= stateInPtr[j];
+          }
+
           uint8_t* temp = stateInPtr;
           stateInPtr = stateOutPtr;
           stateOutPtr = temp;

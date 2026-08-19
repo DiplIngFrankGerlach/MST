@@ -29,15 +29,23 @@ public:
     bool getRandomNumber128(uint8_t* destination)
     {
         int randomFH = open("/dev/urandom", O_RDONLY);
-	if (randomFH >= 0)
-	{
-	    ssize_t result = read(randomFH, destination, 16);
+        if (randomFH >= 0)
+        {
+            ssize_t result = read(randomFH, destination, 16);
             close(randomFH);
-	    if (result == 16)
-	    {
-		return true;
-	    }
-	}
+            if (result == 16) return true;
+	     }
+        return false;
+    }
+    bool getRandomNumber256(uint8_t* destination)
+    {
+        int randomFH = open("/dev/urandom", O_RDONLY);
+        if (randomFH >= 0)
+        {
+            ssize_t result = read(randomFH, destination, 32);
+            close(randomFH);
+            if (result == 32) return true;
+	     }
         return false;
     }
 };

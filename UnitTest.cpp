@@ -1,9 +1,7 @@
 /*********************************************************************************
 * Minimal Secure Transport Library
 *
-* Free for non-Commercial Use. Commercial Use requires a license from the author.
-*
-* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2026 Frank Gerlach, frankgerlach.tai@gmx.de
 *
 **********************************************************************************/
 
@@ -44,20 +42,19 @@ void testProc(uint32_t testSize)
 
 void encryptedCommunicationExample()
 {
-   uint8_t sharedKey[16] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0};
+   uint8_t sharedKey[32] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0, 
+                            1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 
    MST_Endpoint endpointA(sharedKey);
    MST_Endpoint endpointB(sharedKey);
 
-   uint8_t mcA[16];
-   endpointA.generateMaskCounterExchange(mcA);
+   uint8_t sessionKeyEncrypted[32];
+   endpointA.createSenderSession(sessionKeyEncrypted);
+   endpointB.createSessionReceive(sessionKeyEncrypted);
 
-   uint8_t mcB[16];
-   endpointB.generateMaskCounterExchange(mcB);
+   endpointB.createSenderSession(sessionKeyEncrypted);
+   endpointA.createSessionReceive(sessionKeyEncrypted);
 
-   //exchange of masking counters
-   endpointA.decryptMaskCounterExchange(mcB);
-   endpointB.decryptMaskCounterExchange(mcA);
  
    
    //now we can securely encrypt with all assurances of the protocol
@@ -83,64 +80,63 @@ void encryptedCommunicationExample()
 
 void encryptedCommunicationExampleComplex()
 {
-   uint8_t sharedKey[16] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0};
+   uint8_t sharedKey[32] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0, 
+                            1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 
    MST_Endpoint endpointA(sharedKey);
    MST_Endpoint endpointB(sharedKey);
 
-   uint8_t mcA[16];
-   endpointA.generateMaskCounterExchange(mcA);
+   uint8_t sessionKeyEncrypted[32];
+   endpointA.createSenderSession(sessionKeyEncrypted);
+   endpointB.createSessionReceive(sessionKeyEncrypted);
 
-   uint8_t mcB[16];
-   endpointB.generateMaskCounterExchange(mcB);
+   endpointB.createSenderSession(sessionKeyEncrypted);
+   endpointA.createSessionReceive(sessionKeyEncrypted);
 
-   //exchange of masking counters
-   endpointA.decryptMaskCounterExchange(mcB);
-   endpointB.decryptMaskCounterExchange(mcA);
  
    
    //now we can securely encrypt with all assurances of the protocol
 
    for(uint32_t i=0; i < 10000; i++)
    {
-	   string plaintext = "Schiller, Goethe, Von der Vogelweide";
+           string plaintext = "Schiller, Goethe, Von der Vogelweide";
 
            uint8_t n= rand() & 0xF;
            for(uint8_t j=0; j < n; j++)
            {
               plaintext += " three more words";
            }
-	   uint8_t* secureMessage;
-	   uint32_t lengthSM;
-	   assert( endpointA.encryptToSecureMessage((uint8_t*)plaintext.c_str(),
-		                                    plaintext.length()+1,
-		                                    &secureMessage,
-		                                    &lengthSM) );
-	   
-	   uint8_t* plaintextDec;
-	   uint32_t lengthPT;
-	   assert( endpointB.decryptSecureMessage(secureMessage,lengthSM,&plaintextDec,&lengthPT) );
+           uint8_t* secureMessage;
+           uint32_t lengthSM;
+           assert( endpointA.encryptToSecureMessage((uint8_t*)plaintext.c_str(),
+                   plaintext.length()+1,
+                   &secureMessage,
+                   &lengthSM) );
+      
+           uint8_t* plaintextDec;
+           uint32_t lengthPT;
+           assert( endpointB.decryptSecureMessage(secureMessage,lengthSM,&plaintextDec,&lengthPT) );
 
-	   assert( plaintext.compare( (const char*)plaintextDec) == 0 );
+           assert( plaintext.compare( (const char*)plaintextDec) == 0 );
 
 
            if( (rand() & 0xF) < 5 )
            {
-		   string plaintext2 = "Buy 100 shares of Apple and 200 shares of Deutsche Bank";
+               string plaintext2 = "Buy 100 shares of Apple and 200 shares of Deutsche Bank";
 
-		   n= rand() & 0xF;
-		   for(uint8_t j=0; j < n; j++)
-		   {
-		      plaintext2 += " three more words";
-		   }
-		   assert( endpointB.encryptToSecureMessage((uint8_t*)plaintext2.c_str(),
-				                            plaintext2.length()+1,
-				                            &secureMessage,
-				                            &lengthSM) );
-	   
-		   assert( endpointA.decryptSecureMessage(secureMessage,lengthSM,&plaintextDec,&lengthPT) );
+               n= rand() & 0xF;
+               for(uint8_t j=0; j < n; j++)
+               {
+                   plaintext2 += " three more words";
+               }
+               assert( endpointB.encryptToSecureMessage((uint8_t*)plaintext2.c_str(),
+                       plaintext2.length()+1,
+                       &secureMessage,
+                       &lengthSM) );
+      
+               assert( endpointA.decryptSecureMessage(secureMessage,lengthSM,&plaintextDec,&lengthPT) );
 
-		   assert( plaintext2.compare((const char*)plaintextDec) == 0 );
+               assert( plaintext2.compare((const char*)plaintextDec) == 0 );
            }
    }
    
@@ -148,20 +144,19 @@ void encryptedCommunicationExampleComplex()
 
 void encryptedCommunicationFailTest()
 {
-   uint8_t sharedKey[16] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0};
+   uint8_t sharedKey[32] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0, 
+                            1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 
    MST_Endpoint endpointA(sharedKey);
    MST_Endpoint endpointB(sharedKey);
 
-   uint8_t mcA[16];
-   endpointA.generateMaskCounterExchange(mcA);
+   uint8_t sessionKeyEncrypted[32];
+   endpointA.createSenderSession(sessionKeyEncrypted);
+   endpointB.createSessionReceive(sessionKeyEncrypted);
 
-   uint8_t mcB[16];
-   endpointB.generateMaskCounterExchange(mcB);
+   endpointB.createSenderSession(sessionKeyEncrypted);
+   endpointA.createSessionReceive(sessionKeyEncrypted);
 
-   //exchange of masking counters
-   endpointA.decryptMaskCounterExchange(mcB);
-   endpointB.decryptMaskCounterExchange(mcA);
  
    
    //now we can securely encrypt with all assurances of the protocol
@@ -181,21 +176,19 @@ void encryptedCommunicationFailTest()
 
 void replayAttackFailTest()
 {
-   uint8_t sharedKey[16] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0};
+   uint8_t sharedKey[32] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0, 
+                            1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 
    MST_Endpoint endpointA(sharedKey);
    MST_Endpoint endpointB(sharedKey);
 
-   uint8_t mcA[16];
-   endpointA.generateMaskCounterExchange(mcA);
+   uint8_t sessionKeyEncrypted[32];
+   endpointA.createSenderSession(sessionKeyEncrypted);
+   endpointB.createSessionReceive(sessionKeyEncrypted);
 
-   uint8_t mcB[16];
-   endpointB.generateMaskCounterExchange(mcB);
+   endpointB.createSenderSession(sessionKeyEncrypted);
+   endpointA.createSessionReceive(sessionKeyEncrypted);
 
-   //exchange of masking counters
-   endpointA.decryptMaskCounterExchange(mcB);
-   endpointB.decryptMaskCounterExchange(mcA);
- 
    
    //now we can securely encrypt with all assurances of the protocol
    const char* plaintext = "transfer $100 from Account No 19112119 to 1882122";
@@ -219,20 +212,18 @@ void replayAttackFailTest()
 
 void duplicateObfuscationTest()
 {
-   uint8_t sharedKey[16] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0};
+   uint8_t sharedKey[32] = {11,55,11,33,67,89,91,11,55,11,33,67,89,91,0,0, 
+                            1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 
    MST_Endpoint endpointA(sharedKey);
    MST_Endpoint endpointB(sharedKey);
 
-   uint8_t mcA[16];
-   endpointA.generateMaskCounterExchange(mcA);
+   uint8_t sessionKeyEncrypted[32];
+   endpointA.createSenderSession(sessionKeyEncrypted);
+   endpointB.createSessionReceive(sessionKeyEncrypted);
 
-   uint8_t mcB[16];
-   endpointB.generateMaskCounterExchange(mcB);
-
-   //exchange of masking counters
-   endpointA.decryptMaskCounterExchange(mcB);
-   endpointB.decryptMaskCounterExchange(mcA);
+   endpointB.createSenderSession(sessionKeyEncrypted);
+   endpointA.createSessionReceive(sessionKeyEncrypted);
  
    
    //now we can securely encrypt with all assurances of the protocol
@@ -271,32 +262,32 @@ void unitTestSuite()
    //testProc(1000000);
 
    {
-	   uint8_t ctr[]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-	   uint8_t desiredResult[]={2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-	   MST_Endpoint::incrementMC(ctr);
-	   assert(memcmp(ctr,desiredResult,16)==0);
+      uint8_t ctr[]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+      uint8_t desiredResult[]={2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+      MST_Endpoint::incrementMC(ctr);
+      assert(memcmp(ctr,desiredResult,16)==0);
 
    }
    {   
-	   uint8_t ctr[]={255,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-	   uint8_t desiredResult[]={0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-	   MST_Endpoint::incrementMC(ctr);
+      uint8_t ctr[]={255,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+      uint8_t desiredResult[]={0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+      MST_Endpoint::incrementMC(ctr);
 
-	   assert(memcmp(ctr,desiredResult,16)==0);
+      assert(memcmp(ctr,desiredResult,16)==0);
    }
    {   
-	   uint8_t ctr[]={255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255};
-	   uint8_t desiredResult[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	   MST_Endpoint::incrementMC(ctr);
+      uint8_t ctr[]={255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255};
+      uint8_t desiredResult[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+      MST_Endpoint::incrementMC(ctr);
 
-	   assert(memcmp(ctr,desiredResult,16)==0);
+      assert(memcmp(ctr,desiredResult,16)==0);
    }
    {   
-	   uint8_t ctr[]={255,255,255,255,255,255,255,255,255,255,255,255,255,255,254,255};
-	   uint8_t desiredResult[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255};
-	   MST_Endpoint::incrementMC(ctr);
+      uint8_t ctr[]={255,255,255,255,255,255,255,255,255,255,255,255,255,255,254,255};
+      uint8_t desiredResult[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,255};
+      MST_Endpoint::incrementMC(ctr);
 
-	   assert(memcmp(ctr,desiredResult,16)==0);
+      assert(memcmp(ctr,desiredResult,16)==0);
    }
    encryptedCommunicationExample();
    encryptedCommunicationFailTest();
