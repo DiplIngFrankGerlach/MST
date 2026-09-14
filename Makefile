@@ -15,9 +15,9 @@ OBJECTS_EXAMPLE = aes.o Example1.o
 
 aes.c:aes.h
 
-SampleAndTesting.o:Protocol.h aes.h GeneralUtil.h
+SampleAndTesting.o:Protocol.h aes.h GeneralUtil.h  DaviesMeyerHash.h
 
-UnitTest.o:Protocol.h RandomSource.h TCPUtil.h UnitTest.h Util.h GeneralUtil.h
+UnitTest.o:Protocol.h RandomSource.h TCPUtil.h UnitTest.h Util.h GeneralUtil.h DaviesMeyerHash.h
 
 %.o: %.c
 #	g++ $(GPP_FLAGS) -I./aes -c -o $@ $< 

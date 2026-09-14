@@ -28,8 +28,8 @@ void testProc(uint32_t testSize)
    MST_Hash mstHash;
    assert(mstHash.createAuthPlaintext( testData,testSize,&authPlaintext,&lengthAuth) );
 
-   uint8_t* plaintextBack;  
-   uint32_t lengthPT;
+   uint8_t* plaintextBack(NULL);  
+   uint32_t lengthPT(-1);
 
    //test:authPlaintext[6] ^= 1;
 
@@ -56,18 +56,18 @@ void encryptedCommunicationExample()
    endpointA.createSessionReceive(sessionKeyEncrypted);
 
  
-   
+   cout << "encryptedCommunicationExample 1" << endl; 
    //now we can securely encrypt with all assurances of the protocol
    const char* plaintext = "Schiller, Goethe, Von der Vogelweide";
-   uint8_t* secureMessage;
-   uint32_t lengthSM;
+   uint32_t lengthSM(4000000000);
    uint32_t lp = strlen(plaintext)+1;
+   uint8_t* secureMessage(NULL);
    assert( endpointA.encryptToSecureMessage((uint8_t*)plaintext,lp,&secureMessage,&lengthSM) );
    Util::dumpHex(secureMessage,lengthSM);
 
-   uint8_t* plaintextDec;
-   uint32_t lengthPT;
-   assert( endpointB.decryptSecureMessage(secureMessage,lengthSM,&plaintextDec,&lengthPT) );
+   uint8_t* plaintextDec(NULL);
+   uint32_t lengthPT(4000000000);
+   assert( endpointB.decryptSecureMessage(secureMessage,lengthSM,&plaintextDec,&lengthPT) ); //Baustelle
 
    cout << plaintextDec << endl;
 

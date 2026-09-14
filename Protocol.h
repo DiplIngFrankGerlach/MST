@@ -16,6 +16,8 @@
 #include "RandomSource.h"
 #include "GeneralUtil.h"
 
+#define AES_WORDSIZE 16
+
 
 /* Class for generating and checking the AuthPlaintext PDU(Protocol Data Unit). 
    This class will generate the Authplaintext PDU and also check a given PDU
@@ -45,40 +47,63 @@ public:
    {
         if( (length == 0) || (length > (UINT_MAX-32) ) )
         {
+          cout << "Error 1 in createAuthPlaintext" << endl;
           return false;
         }
 
-        uint32_t neededSize = length + 4 + 32 - (length % 32);
+        //cout << "length:" << length << endl;
+
+        uint32_t oktetsMitLaengenAnzeiger = length + 4;
+
+        uint32_t laengePadding = 32 - (oktetsMitLaengenAnzeiger % 32);
+
+        uint32_t neededSize = oktetsMitLaengenAnzeiger + laengePadding + HashWordSize;
+
+        //cout << "neededSize: " << neededSize << endl;
  
         if( _outputBufferSize < neededSize )
         {
-           memset(_outputBuffer,0,_outputBufferSize);
-           delete[] _outputBuffer;
+           if( _outputBuffer != NULL )
+           {
+              memset(_outputBuffer,0,_outputBufferSize);
+              delete[] _outputBuffer;
+           }
            
-           _outputBufferSize = length + 4 + 32;
+           _outputBufferSize = neededSize;
            _outputBuffer = new uint8_t[_outputBufferSize];
            if( _outputBuffer == NULL )
            {
               return false;
            }
         }
+
+        //cout << "_outputBuffer:" << ((void*)_outputBuffer) << endl;
+
         //write message length
         Util::int2Octets(length,_outputBuffer);
+        //write message
         memcpy(_outputBuffer+4,sourcePlaintext,length);
 
-        //zero out the rest of the last 32 Octet word
+        //zero out the rest of the last 32 Octet word(the padding)
         uint32_t pos;
-        for( pos = length+4; (pos & (32-1)) != 0; pos++)
+        for( pos = length+4; pos < (oktetsMitLaengenAnzeiger + laengePadding); pos++)
         {
+           //cout << "ausnullen Padding " << pos << endl;
            _outputBuffer[pos]=0;
         }
+
+        
+        
+
+        //cout << "pos:" << pos << endl;
+       
          
         if( DM_Hash::hash(_outputBuffer,pos,_outputBuffer+pos) == false)
         {
            return false;
         }
         *outputBuffer = _outputBuffer;
-        *outputSize = pos + 32;
+        *outputSize = neededSize;
         return true;
    }
 
@@ -93,21 +118,32 @@ public:
                                  uint32_t*  lengthPlaintext )//typically a reference to a uint32_t
    {
       *plaintext = NULL;
-      if( length < 32 )
+      if( (length < (2*HashWordSize)) || ((length % HashWordSize) != 0) )
       {
+        cout << "illegal PDU size" << endl;
         return false;
       }
-      uint8_t computedHash[32];
-      if(DM_Hash::hash(authPlaintext,length-32,computedHash) )
+      uint8_t computedHash[HashWordSize];
+
+      //cout << "checkAndExtractPlaintext length-HashWordSize=" << (length-HashWordSize) << endl;
+
+      if(DM_Hash::hash(authPlaintext,length - HashWordSize,computedHash) )
       {
-         if( timing_insensitive_memcmp(computedHash,authPlaintext+length-32,32) == 0 )
+         uint32_t authenticatedLength = length - HashWordSize; 
+         if( timing_insensitive_memcmp(computedHash,authPlaintext+authenticatedLength,HashWordSize)  )
          {
             Util::octets2Int(authPlaintext,lengthPlaintext);
-            if( (*lengthPlaintext) < (length - 32 ) )
+            if( (*lengthPlaintext) < (length - HashWordSize) )
             {
                *plaintext = authPlaintext+4;
                return true;
             }            
+            else
+            {
+               plaintext = NULL;
+               lengthPlaintext = 0;
+               return false;
+            }
          }
       } 
       return false;
@@ -163,9 +199,13 @@ class MST_Endpoint
    {
       if(_bufferSize < sz )
       {
-         memset(_buffer,0,_bufferSize);
+         if(_buffer != NULL)
+         {
+            memset(_buffer,0,_bufferSize);
+            delete[] _buffer;
+         }
          _bufferSize = sz;
-         delete[] _buffer;
+         //cout << "allocating _buffer size " << _bufferSize << endl;
          _buffer = new uint8_t[_bufferSize];
          if( _buffer == NULL )
          {
@@ -228,6 +268,7 @@ public:
         if( rs.getRandomNumber256(_sessionKeyOwn) )//Baustelle
         {
            aes_encrypt(_sessionKeyOwn,_sessionKeyOwnEncrypted,_aesSchedule,256);
+           aes_encrypt(_sessionKeyOwn+16,_sessionKeyOwnEncrypted+16,_aesSchedule,256);
            aes_key_setup(_sessionKeyOwn,_aesScheduleSessionKeyOwn,256);
            memcpy(encryptedOwnKey32,_sessionKeyOwnEncrypted,32); 
            _sessionKeySendingCreated = true;
@@ -239,6 +280,7 @@ public:
    bool createSessionReceive(uint8_t* encryptedPartnerKey32)
    {
         aes_decrypt(encryptedPartnerKey32,_sessionKeyPartner,_aesSchedule,256);
+        aes_decrypt(encryptedPartnerKey32+16,_sessionKeyPartner+16,_aesSchedule,256);
         aes_key_setup(_sessionKeyPartner,_aesScheduleSessionKeyPartner,256);
         _sessionKeyReceivingCreated = true;
         return true;
@@ -256,21 +298,31 @@ public:
    {
       if( !_sessionKeyReceivingCreated )   return false; 
 
-      if( (lengthSM < (32*2)) || ((lengthSM & 0x1F) != 0 ) ) return false;
+      if( (lengthSM < (HashWordSize*2)) || ((lengthSM % HashWordSize) != 0 ) ) return false;
+ 
+      //cout << "lengthSM:" << lengthSM << endl;
 
-      if( !ensureBufferSize(lengthSM) )  return false; 
+      if( !ensureBufferSize(lengthSM + 1) )  return false; 
 
-      for(uint32_t i=0; i < lengthSM; i+=16)
+      //cout << "lengthSM:" << lengthSM  << endl;
+
+      for(uint32_t i=0; i < lengthSM; i += AES_WORDSIZE)
       {
-         uint8_t aesZaehler[16];
-         aes_encrypt(_CounterPartner,aesZaehler,_aesScheduleSessionKeyPartner,256);
+         //cout << "decryptSecureMessage " << i << endl;
+         uint8_t aesZaehler[AES_WORDSIZE];
+         aes_encrypt(_CounterPartner,aesZaehler,_aesScheduleSessionKeyPartner,HashWordSizeBits);
          //XOR deciphering
-         for(uint8_t j=0; j < 16; j++)
+         for(uint8_t j=0; j < AES_WORDSIZE; j++)
          {
-            _buffer[i+j] ^= aesZaehler[j]; 
+            uint32_t buffer_pos = i+j;
+            //cout << "buffer_pos:" << buffer_pos << endl; 
+            _buffer[buffer_pos] = securedMessage[buffer_pos] ^ aesZaehler[j]; 
          }
          incrementMC(_CounterPartner);
       } 
+      //_buffer[lengthSM] = 0;//unscharf !
+      //cout << "buffer:" << _buffer << endl;
+
       if( _mstHash.checkAndExtractPlaintext(_buffer,lengthSM,plaintext,lengthPlaintext) )
       {
          return true;
@@ -291,16 +343,20 @@ public:
                                uint8_t** securedMessage,
                                uint32_t* lengthSM)
    {
-       if( !_sessionKeySendingCreated) return false;
+       if( !_sessionKeySendingCreated)
+       {
+           cout << "Session key has not been created !" << endl;
+           return false;
+       }
         
        if( _mstHash.createAuthPlaintext(plaintext,length,securedMessage,lengthSM) )
        {
-	      for(uint32_t i=0; i < (*lengthSM); i+=16)
+	      for(uint32_t i=0; i < (*lengthSM); i += AES_WORDSIZE)
 	      {
             //apply masking
-            uint8_t aes_zaehler[16];
-            aes_encrypt(_CounterOwn,aes_zaehler,_aesScheduleSessionKeyOwn,256);
-            for(uint8_t j=0; j < 16; j++)
+            uint8_t aes_zaehler[AES_WORDSIZE];
+            aes_encrypt(_CounterOwn,aes_zaehler,_aesScheduleSessionKeyOwn,HashWordSize);
+            for(uint8_t j=0; j < AES_WORDSIZE; j++)
             {
                (*securedMessage)[i+j] ^= aes_zaehler[j];
             }

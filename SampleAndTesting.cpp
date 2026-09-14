@@ -19,14 +19,14 @@
 
 int main()
 {
-   char plaintext[32];  
+   char plaintext[32+1];  
 
-   strcpy(plaintext,"1123456789012345678901234567890");
+   strcpy(plaintext,"0123456789012345678901234567890");
 
-   uint8_t hash[16];   
+   uint8_t hash[32];   
    DM_Hash::hash((uint8_t*) plaintext,32,hash);
 
-   Util::dumpHex(hash,16); 
+   Util::dumpHex(hash,32); 
 
    char testInput[100];
    strcpy(testInput,"helloWorld");

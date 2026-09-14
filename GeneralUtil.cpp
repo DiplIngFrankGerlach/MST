@@ -5,8 +5,8 @@
 
 bool timing_insensitive_memcmp(uint8_t* feld1, uint8_t* feld2, uint32_t anzahl)
 {
-    uint32_t anzahl_gleich;
-    uint32_t anzahl_ungleich;
+    uint32_t anzahl_gleich(0);
+    uint32_t anzahl_ungleich(0);
     for(uint32_t i=0; i < anzahl; i++)
     {
         if(feld1[i] == feld2[i]) anzahl_gleich++;
