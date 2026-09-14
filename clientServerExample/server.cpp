@@ -74,15 +74,16 @@ void* workerProcedure(void*)
          cout << "partnerNumber: " << partnerNumber << endl;
         
 
-         uint8_t sharedKey[] = {0x9f,0x51,0xcf,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb3};
+         uint8_t sharedKey[] = {0x9f,0x51,0xcf,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb3,
+                                0x90,0x52,0xc3,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb4  };
          MST_Endpoint ep(sharedKey);
 
-         uint8_t mce[16];
+         uint8_t receiverKey[AES_KEY_SIZE];
 
-         if( bSocket.read(mce,16) )
+         if( bSocket.read(receiverKey,AES_KEY_SIZE) )
          {
             cout << "X" << endl;
-            ep.decryptMaskCounterExchange(mce);
+            ep.createSessionReceive(receiverKey);
             uint32_t l;
 
             if( readInteger32(bSocket,&l) && (l < 100000))
@@ -105,6 +106,7 @@ void* workerProcedure(void*)
 
        
   }//end while(true)
+
     
    return NULL;
 }

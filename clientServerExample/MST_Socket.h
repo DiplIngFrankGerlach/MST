@@ -31,12 +31,12 @@ class MST_Socket
    uint32_t _readBufferSize;
 
    bool _isServer;
-   uint8_t _clientKey[16];
+   uint8_t _clientKey[AES_KEY_SIZE];
    
    void ensureReadBufferSize(uint32_t size);
 public:
    //the client constructor
-   MST_Socket(uint8_t* sharedKey, string hostname,uint16_t port,uint32_t partnerNumber);
+   MST_Socket(uint8_t* sharedKey, string& hostname,uint16_t port,uint32_t partnerNumber);
    
 
    //the server constructor

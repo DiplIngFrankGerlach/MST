@@ -18,6 +18,11 @@
 
 #define AES_WORDSIZE 16
 
+#define AES_KEY_SIZE 32
+#define AES_KEY_SIZE_HALF (AES_KEY_SIZE / 2)
+#define AES_KEY_SIZE_BITS (AES_KEY_SIZE*8)
+#define COUNTER_SIZE 16
+
 
 /* Class for generating and checking the AuthPlaintext PDU(Protocol Data Unit). 
    This class will generate the Authplaintext PDU and also check a given PDU
@@ -55,7 +60,7 @@ public:
 
         uint32_t oktetsMitLaengenAnzeiger = length + 4;
 
-        uint32_t laengePadding = 32 - (oktetsMitLaengenAnzeiger % 32);
+        uint32_t laengePadding = HashWordSize - (oktetsMitLaengenAnzeiger % HashWordSize);
 
         uint32_t neededSize = oktetsMitLaengenAnzeiger + laengePadding + HashWordSize;
 
@@ -174,12 +179,12 @@ public:
 */ 
 class MST_Endpoint
 {
-   uint8_t _sharedSecret[32];      //the secret key shared by the communication partners
-   uint8_t _sessionKeyOwn[32];
-   uint8_t _sessionKeyOwnEncrypted[32];
-   uint8_t _sessionKeyPartner[32];
-   uint8_t _CounterOwn[16];    //the MaskingCounter of this endpoint
-   uint8_t _CounterPartner[16];//the MaskingCounter of the other endpoint
+   uint8_t _sharedSecret[AES_KEY_SIZE];      //the secret key shared by the communication partners
+   uint8_t _sessionKeyOwn[AES_KEY_SIZE];
+   uint8_t _sessionKeyOwnEncrypted[AES_KEY_SIZE];
+   uint8_t _sessionKeyPartner[AES_KEY_SIZE];
+   uint8_t _CounterOwn[COUNTER_SIZE];    //the MaskingCounter of this endpoint
+   uint8_t _CounterPartner[COUNTER_SIZE];//the MaskingCounter of the other endpoint
   
 
 
@@ -228,7 +233,7 @@ public:
           carry = counter[i] == 255;
           counter[i++]++;
        }
-       while(carry && (i < 16));
+       while(carry && (i < COUNTER_SIZE));
    }
 
    /* Create an endpoint.
@@ -236,13 +241,13 @@ public:
    */
    MST_Endpoint(const uint8_t* sharedSecret):_buffer(NULL),_bufferSize(0)
    {
-        memcpy(_sharedSecret,sharedSecret,32);
+        memcpy(_sharedSecret,sharedSecret,AES_KEY_SIZE);
         _sessionKeySendingCreated = false;
         _sessionKeyReceivingCreated = false;     
    
-        aes_key_setup(_sharedSecret,_aesSchedule,256);
-        memset(_CounterOwn,0,16);
-        memset(_CounterPartner,0,16);
+        aes_key_setup(_sharedSecret,_aesSchedule,AES_KEY_SIZE_BITS);
+        memset(_CounterOwn,0,COUNTER_SIZE);
+        memset(_CounterPartner,0,COUNTER_SIZE);
    }
 
    ~MST_Endpoint()
@@ -250,11 +255,11 @@ public:
       memset(_buffer,0,_bufferSize);
       delete[] _buffer;
       //wipe cipher secrets
-      memset(_sharedSecret,0,32);
-      memset(_sessionKeyOwn,0,32);
-      memset(_sessionKeyPartner,0,32);
-      memset(_CounterOwn,0,16);
-      memset(_CounterPartner,0,16);
+      memset(_sharedSecret,0,AES_KEY_SIZE);
+      memset(_sessionKeyOwn,0,AES_KEY_SIZE);
+      memset(_sessionKeyPartner,0,AES_KEY_SIZE);
+      memset(_CounterOwn,0,COUNTER_SIZE);
+      memset(_CounterPartner,0,COUNTER_SIZE);
 
       memset(_aesSchedule,0,60*sizeof(int));
       memset(_aesScheduleSessionKeyOwn,0,60*sizeof(int));
@@ -265,12 +270,12 @@ public:
    bool createSenderSession(uint8_t* encryptedOwnKey32)
    {
         RandomSource rs;
-        if( rs.getRandomNumber256(_sessionKeyOwn) )//Baustelle
+        if( rs.getRandomNumber256(_sessionKeyOwn) )
         {
-           aes_encrypt(_sessionKeyOwn,_sessionKeyOwnEncrypted,_aesSchedule,256);
-           aes_encrypt(_sessionKeyOwn+16,_sessionKeyOwnEncrypted+16,_aesSchedule,256);
-           aes_key_setup(_sessionKeyOwn,_aesScheduleSessionKeyOwn,256);
-           memcpy(encryptedOwnKey32,_sessionKeyOwnEncrypted,32); 
+           aes_encrypt(_sessionKeyOwn,_sessionKeyOwnEncrypted,_aesSchedule,AES_KEY_SIZE_BITS);
+           aes_encrypt(_sessionKeyOwn + (AES_KEY_SIZE/2),_sessionKeyOwnEncrypted + (AES_KEY_SIZE/2),_aesSchedule,AES_KEY_SIZE_BITS);
+           aes_key_setup(_sessionKeyOwn,_aesScheduleSessionKeyOwn,AES_KEY_SIZE_BITS);
+           memcpy(encryptedOwnKey32,_sessionKeyOwnEncrypted,AES_KEY_SIZE); 
            _sessionKeySendingCreated = true;
            return false;
         }
@@ -279,9 +284,9 @@ public:
 
    bool createSessionReceive(uint8_t* encryptedPartnerKey32)
    {
-        aes_decrypt(encryptedPartnerKey32,_sessionKeyPartner,_aesSchedule,256);
-        aes_decrypt(encryptedPartnerKey32+16,_sessionKeyPartner+16,_aesSchedule,256);
-        aes_key_setup(_sessionKeyPartner,_aesScheduleSessionKeyPartner,256);
+        aes_decrypt(encryptedPartnerKey32,_sessionKeyPartner,_aesSchedule,AES_KEY_SIZE_BITS);
+        aes_decrypt(encryptedPartnerKey32+AES_KEY_SIZE_HALF,_sessionKeyPartner+AES_KEY_SIZE_HALF,_aesSchedule,AES_KEY_SIZE_BITS);
+        aes_key_setup(_sessionKeyPartner,_aesScheduleSessionKeyPartner,AES_KEY_SIZE_BITS);
         _sessionKeyReceivingCreated = true;
         return true;
    }

@@ -26,7 +26,7 @@ KeyReader::KeyReader():_fileHandle(-1),_readBuffer(NULL),_bufferValid(0),_readPt
 
 bool KeyReader::loadOneKeyToBuffer(const char* asciiRepresentation)
 {
-   const int lengthOneKey(16*2+15);
+   const int lengthOneKey(AES_KEY_SIZE*2+(AES_KEY_SIZE-1));
    if( strlen(asciiRepresentation) == lengthOneKey )
    {
       memcpy(_readBuffer,asciiRepresentation,lengthOneKey);
@@ -151,9 +151,9 @@ bool KeyReader::readNumber(uint32_t* number)
 
 bool KeyReader::readPSKey(uint8_t* key)
 {
-   uint8_t i=0;
+   uint32_t i=0;
    
-   while( i < 16 )
+   while( i < AES_KEY_SIZE )
    {
       uint8_t valueTwo(0);
       uint8_t value;
@@ -167,7 +167,7 @@ bool KeyReader::readPSKey(uint8_t* key)
             if( isHexNumber(_currentChar,value) )
             {
                valueTwo += value;
-               if( i < 15 )
+               if( i < (AES_KEY_SIZE - 1) )
                {     
                   if( getChar() )
                   {
@@ -188,7 +188,7 @@ bool KeyReader::readPSKey(uint8_t* key)
       }
       key[i++] = valueTwo;
       
-      if( i < 16 )
+      if( i < AES_KEY_SIZE )
       {
          success = false;
          if( _currentChar == '-' )
@@ -200,6 +200,7 @@ bool KeyReader::readPSKey(uint8_t* key)
          }
          if( !success)
          {
+            cout << "Fehler:" << int(i) << endl;
             return false;
          }
       }
@@ -225,7 +226,7 @@ bool KeyReader::readPresharedKeys()
    do
    {
       uint32_t partnerNumber(0);
-      uint8_t presharedKey[16];
+      uint8_t presharedKey[AES_KEY_SIZE];
       bool success = false;
       if( readNumber(&partnerNumber) )
       {

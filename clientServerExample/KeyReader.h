@@ -4,7 +4,7 @@
 *
 * Free for non-Commercial Use. Commercial Use requires a license from the author.
 *
-* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2017,2026 Frank Gerlach, frankgerlach.tai@gmx.de
 *
 **********************************************************************************/
 
@@ -16,31 +16,32 @@
 #include <memory.h>
 #include <stdint.h>
 #include "Util.h"
+#include "Protocol.h"
 
 using namespace std;
 
-/* a class encapsulating a 128 bit symmetric key, needed for unordered_map */
+/* a class encapsulating a 256 bit symmetric key, needed for unordered_map */
 class PresharedKey
 {
-   uint8_t _key[16];
+   uint8_t _key[AES_KEY_SIZE];
 public:
    PresharedKey()
    {
-     memset(_key,0,16);
+     memset(_key,0,AES_KEY_SIZE);
    }
    PresharedKey(uint8_t* key)
    {
-      memcpy(_key,key,16);
+      memcpy(_key,key,AES_KEY_SIZE);
    }
 
    PresharedKey(const PresharedKey& other)
    {
-      memcpy(_key,other._key,16);
+      memcpy(_key,other._key,AES_KEY_SIZE);
    }
 
    void operator=(const PresharedKey& other)
    {
-      memcpy(_key,other._key,16);
+      memcpy(_key,other._key,AES_KEY_SIZE);
    }
 
    void get(uint8_t** destination)
@@ -50,7 +51,7 @@ public:
 
    void print() const
    {
-       Util::dumpHex(_key,16); 
+       Util::dumpHex(_key,AES_KEY_SIZE); 
    }
 };
 

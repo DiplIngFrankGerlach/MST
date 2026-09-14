@@ -2,7 +2,7 @@
 #
 # 
 
-VPATH:=../aes
+VPATH:=../aes:..
 
 INCLUDES= -I.. -I../aes
 
@@ -16,17 +16,17 @@ GPP_FLAGS = -g -Wall $(INCLUDES) -std=c++11
 #CFLAGS= -O2 -Wall
 
 
-OBJECTS=aes.o server.o BufferedSocket.o
+OBJECTS=aes.o server.o BufferedSocket.o ../GeneralUtil.o
 
-CLIENT_OBJECTS = client.o aes.o BufferedSocket.o
+CLIENT_OBJECTS = client.o aes.o BufferedSocket.o ../GeneralUtil.o 
 
-OBJECTS_SERVER_FULL = aes.o serverFull.o BufferedSocket.o MST_Socket.o KeyReader.o
-OBJECTS_CLIENT_FULL = aes.o clientFull.o BufferedSocket.o MST_Socket.o KeyReader.o
+OBJECTS_SERVER_FULL = aes.o serverFull.o BufferedSocket.o MST_Socket.o KeyReader.o ../GeneralUtil.o
+OBJECTS_CLIENT_FULL = aes.o clientFull.o BufferedSocket.o MST_Socket.o KeyReader.o ../GeneralUtil.o
 
 OBJECTS_KR_TEST = KeyReader.o krTest.o
 
 
-server.o: ThreadWorkQueue.h ../Protocol.h BufferedSocket.h ../aes/aes.h BufferedSocket.o
+server.o: ThreadWorkQueue.h ../Protocol.h BufferedSocket.h ../aes/aes.h BufferedSocket.o ../GeneralUtil.o
 
 client.o: BufferedSocket.h
 

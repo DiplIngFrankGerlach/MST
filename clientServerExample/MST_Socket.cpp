@@ -6,7 +6,7 @@
 *
 * Free for non-Commercial Use. Commercial Use requires a license from the author.
 *
-* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2017,2026 Frank Gerlach, frankgerlach.tai@gmx.de
 *
 **********************************************************************************/
 #include <limits.h>
@@ -26,7 +26,7 @@ MST_Socket::MST_Socket(int socket):_mstEP(NULL),
 }
 
 MST_Socket::MST_Socket(uint8_t* key,
-                       string hostname,
+                       string& hostname,
                        uint16_t port,
                        uint32_t partnerNumber):_mstEP(NULL),
                                                _hostname(hostname),
@@ -36,7 +36,7 @@ MST_Socket::MST_Socket(uint8_t* key,
                                                _readBufferSize(0),
                                                _isServer(false)
 {
-   memcpy(_clientKey,key,16);
+   memcpy(_clientKey,key,AES_KEY_SIZE);
 }
 
 
@@ -88,17 +88,17 @@ bool MST_Socket::connectAndStartup()
 
       //cout << "S3" << endl;
       //exchange Mask Counters
-      uint8_t mce[16];
-      _mstEP->generateMaskCounterExchange(mce);
+      uint8_t senderKey[AES_KEY_SIZE];
+      _mstEP->createSenderSession(senderKey);
 
-      if( _bufSocket.write(mce,16) && _bufSocket.flush() )
+      if( _bufSocket.write(senderKey,AES_KEY_SIZE) && _bufSocket.flush() )
       {
           //cout << "S4" << endl;
-          uint8_t mcePartner[16];
-          if( _bufSocket.read(mcePartner,16) )
+          uint8_t receiverKey[AES_KEY_SIZE];
+          if( _bufSocket.read(receiverKey,AES_KEY_SIZE) )
           {
               //cout << "S5" << endl;
-              _mstEP->decryptMaskCounterExchange(mcePartner);
+              _mstEP->createSessionReceive(receiverKey);
               return true;
           }
       }
@@ -131,7 +131,7 @@ bool MST_Socket::read(uint8_t** buffer, uint32_t* length)
    uint32_t smLength(0);
    if( readInteger32(_bufSocket,&smLength) )
    {
-       if( smLength <= (MAX_PLAINTEXT_TRANSACTION_SIZE+ 2*16) )
+       if( smLength <= MAX_PLAINTEXT_TRANSACTION_SIZE )
        {
           ensureReadBufferSize(smLength);
           if( _bufSocket.read(_readBuffer,smLength) )

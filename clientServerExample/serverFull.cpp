@@ -176,5 +176,6 @@ int main(void)
 
        close(server_sock);
     }
+    else cerr << "could not read preshared keys" << endl;
     return(0);
 }
