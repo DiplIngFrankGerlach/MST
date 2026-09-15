@@ -3,42 +3,60 @@
 *
 * Free for non-Commercial Use. Commercial Use requires a license from the author.
 *
-* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2026 Frank Gerlach, frank.gerlach@di-fg.de
 *
 **********************************************************************************/
 
-==========================
-VERALTET VERALTET VERALTET
-==========================
+MST Cipher System, Version 2.9
 
-Protocol Description 
+
+Begriffsbestimmungen
 ====================
 
-Phase 1: Mask Counter Exchange
+SchluesselText = AES(Symmetrischer_Schlüssel, Klartext)
 
-//Given is an 128 bit MaskCounter
-1.1 A creates MaskCounterB from Randomsource
-1.2 A->B: AES(MaskCounterB,SharedSecret), B does MaskCounterB++
-1.3 B creates MaskCounterA from Randomsource
-1.3 B->A: AES(MaskcounterA, SharedSecret), A does MaskcounterA++)
+DAVIES_MEYER[i] = AES(Klartext[i],DAVIES_MEYER[i-1]) XOR DAVIES_MEYER[i-1]
 
-MaskCounterExchange ::= AES(MaskedCounterX,SharedSecret)
+DAVIES_MEYER[-1] = 0
 
-Phase 2: Secure Message Exchange (shown for  only one side)
+GesicherterKlartext = Laenge(Klartext) Klartext Padding32 DAVIES_MEYER(Laenge(Klartext) Klartext Padding32)
 
-SecureMessage ::= AES( MaskedPlaintext, SharedSecret)
+Padding32 = Oktets mit Wert 0, bis zur Auffüllung der PDU auf eine Länge
+            von einem Vielfachen von 32
 
-//For each 16 octets of Plaintext:
-//after each word, the MaskCounter is incremented by one
-MaskedPlaintext16 ::= AuthPlaintext16 ^ MaskCounter
+Laenge(Klartext) = 4 Oktets, welche als 32 bit Ganzzahl die Länge des Klartextes angeben
 
-AuthPlaintext ::= PlaintextToAuth DM_MAC(PlaintextToAuth)
 
-DM_MAC = Davies-Meyer Message Authentication Code (HMAC)
+Sitzungs_Schlüssel_verschlüsselt = AES(Symmetrischer_Schlüssel,zufall_32_oktet)
 
-PlaintextToAuth ::= Length Plaintext Padding
+   zufall_32_oktet kommt z.B. aus /dev/random oder aus einem abgespeicherten Zähler:
 
-Length ::= 32 bit unsigned integer, Little Endian Encoding
+         zufall_32_oktet = AES(GeräteSchlüssel,persistenterZaehler++)
 
-Padding ::= Octets of value 0 for padding to a multiple of 16
+	 GeräteSchlüssel kommt aus physikalischem Zufall und wird z.B. mit JTAG 
+	 oder RS232 in den Flash-Speicher geladen. Der persistente Zähler muss unmittelbar
+	 inkrementiert und wieder gespeichert werden. Die physikalisch bedingte maximale Zahl 
+	 von Flashvorgängen je Flash-Page ist dabei zu beachten.
+
+
+   Dieser Schlüssel wird von jeweiligen Gegenseite erzeugt. 
+
+AES_ZAEHLER[i] = AES(Sitzungs_Schlüssel,i)
+
+SCHLUESSELTEXT[i] = GesicherterKlartext[i]  XOR AES_ZAEHLER[i]
+
+Protokoll
+=========
+
+1.) Beide Endpunkte erzeugen Sitzungs_Schlüssel_verschlüsselt und senden diesen
+    jeweils zur Gegenseite
+
+2.) Beide Fernmeldepartner senden sich Befehle und Rückmeldungen mittels
+    SCHLUESSELTEXT Datenstrukturen.
+
+2.2) Sollte bei der Überprüfung von DAVIES_MEYER(Laenge(Klartext) Klartext Padding32)
+     ein Unterschied festgestellt werden, wird ein Fehler an die höheren
+     Systemschichten signalisiert. Die Verbindung muss dann mittels 1. neu aufgebaut
+     werden.
+
 
