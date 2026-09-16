@@ -6,6 +6,7 @@
 **********************************************************************************/
 
 #include <assert.h>
+#include <cstring>
 #include "DaviesMeyerHash.h"
 #include "Protocol.h"
 

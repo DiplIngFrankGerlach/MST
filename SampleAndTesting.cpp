@@ -12,6 +12,7 @@
 /* Test Code for the Hash-MAC function and the AuthPlaintext PDU */
 
 #include <assert.h>
+#include <cstring>
 #include "DaviesMeyerHash.h"
 #include "Protocol.h"
 #include "UnitTest.h"

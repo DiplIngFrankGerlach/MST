@@ -16,12 +16,12 @@ GPP_FLAGS = -g -Wall $(INCLUDES) -std=c++11
 #CFLAGS= -O2 -Wall
 
 
-OBJECTS=aes.o server.o BufferedSocket.o ../GeneralUtil.o
+OBJECTS=../aes/aes.o server.o BufferedSocket.o ../GeneralUtil.o
 
-CLIENT_OBJECTS = client.o aes.o BufferedSocket.o ../GeneralUtil.o 
+CLIENT_OBJECTS = client.o ../aes/aes.o BufferedSocket.o ../GeneralUtil.o 
 
-OBJECTS_SERVER_FULL = aes.o serverFull.o BufferedSocket.o MST_Socket.o KeyReader.o ../GeneralUtil.o
-OBJECTS_CLIENT_FULL = aes.o clientFull.o BufferedSocket.o MST_Socket.o KeyReader.o ../GeneralUtil.o
+OBJECTS_SERVER_FULL = ../aes/aes.o serverFull.o BufferedSocket.o MST_Socket.o KeyReader.o ../GeneralUtil.o
+OBJECTS_CLIENT_FULL = ../aes/aes.o clientFull.o BufferedSocket.o MST_Socket.o KeyReader.o ../GeneralUtil.o
 
 OBJECTS_KR_TEST = KeyReader.o krTest.o
 
@@ -32,7 +32,7 @@ client.o: BufferedSocket.h
 
 Protocol.h: ../DaviesMeyerHash.h ../Util.h ../RandomSource.h
 
-
+LIBS=-lsocket -lresolv -lnsl
 
 %.o: %.c 
 	gcc $(CFLAGS)  -c  $< -o $@ 
@@ -42,17 +42,17 @@ Protocol.h: ../DaviesMeyerHash.h ../Util.h ../RandomSource.h
 
 
 server:$(OBJECTS)
-	g++ $(OBJECTS) -pthread -o server
+	g++ $(OBJECTS) -pthread -o server $(LIBS)
 
 serverFull:$(OBJECTS_SERVER_FULL)
-	g++ $(OBJECTS_SERVER_FULL) -pthread -o serverFull
+	g++ $(OBJECTS_SERVER_FULL) -pthread -o serverFull $(LIBS)
 
 
 client: $(CLIENT_OBJECTS)
-	g++ $(CLIENT_OBJECTS) -o client 
+	g++ $(CLIENT_OBJECTS) -o client $(LIBS)
 
 clientFull: $(OBJECTS_CLIENT_FULL)
-	g++ -g $(OBJECTS_CLIENT_FULL) -o clientFull 
+	g++ -g $(OBJECTS_CLIENT_FULL) -o clientFull $(LIBS)
 
 krTest: $(OBJECTS_KR_TEST)
 	g++ -g $(OBJECTS_KR_TEST) -o krTest 
