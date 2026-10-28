@@ -57,7 +57,7 @@ public:
           //second AES word
           BYTE inputBuffer2[16];
           memcpy(inputBuffer2,stateInPtr  + (HashWordSize/2),16);
-          for( uint32_t j=0; j < HashWordSize; j++)
+          for( uint32_t j=0; j < 16; j++)
           {
              inputBuffer2[j] ^= stateOutPtr[j];
           }
