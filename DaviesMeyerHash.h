@@ -53,7 +53,17 @@ public:
                       schedule,  
                       HashWordSizeBits) ;
 
-          aes_encrypt(stateInPtr  + (HashWordSize/2), 
+          //concatenate the output of the first AES encryption with the
+          //second AES word
+          BYTE inputBuffer2[16];
+          memcpy(inputBuffer2,stateInPtr  + (HashWordSize/2),16);
+          for( uint32_t j=0; j < HashWordSize; j++)
+          {
+             inputBuffer2[j] ^= stateOutPtr[j];
+          }
+   
+
+          aes_encrypt(inputBuffer2, 
                       stateOutPtr + (HashWordSize/2),
                       schedule,  
                       HashWordSizeBits) ;
