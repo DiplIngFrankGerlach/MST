@@ -34,8 +34,8 @@ public:
             ssize_t result = read(randomFH, destination, 16);
             close(randomFH);
             if (result == 16) return true;
-	     }
-        return false;
+        }
+        return false;//might be too aggressive(if read reads less than 16 octets), but fails securely
     }
     bool getRandomNumber256(uint8_t* destination)
     {
@@ -45,7 +45,7 @@ public:
             ssize_t result = read(randomFH, destination, 32);
             close(randomFH);
             if (result == 32) return true;
-	     }
+        }
         return false;
     }
 };

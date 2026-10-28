@@ -122,6 +122,8 @@ public:
                                  uint8_t**  plaintext,       //typically a reference to a pointer
                                  uint32_t*  lengthPlaintext )//typically a reference to a uint32_t
    {
+      if( length > 1001000000) return false;
+
       *plaintext = NULL;
       if( (length < (2*HashWordSize)) || ((length % HashWordSize) != 0) )
       {
@@ -145,8 +147,8 @@ public:
             }            
             else
             {
-               plaintext = NULL;
-               lengthPlaintext = 0;
+               *plaintext = NULL;
+               *lengthPlaintext = 0;
                return false;
             }
          }
@@ -214,6 +216,7 @@ class MST_Endpoint
          _buffer = new uint8_t[_bufferSize];
          if( _buffer == NULL )
          {
+            _bufferSize = 0;
             return false;
          }
       }
@@ -307,6 +310,8 @@ public:
                              uint32_t* lengthPlaintext) //plaintext length, typically a refrence to a uint32_t
    {
       if( !_sessionKeyReceivingCreated )   return false; 
+
+      if( lengthSM > 1000000000) return false;//avoid integer overflows
 
       if( (lengthSM < (HashWordSize*2)) || ((lengthSM % HashWordSize) != 0 ) ) return false;
  
