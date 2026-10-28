@@ -39,7 +39,7 @@ public:
       uint8_t state1[HashWordSize];
       memset(state1,0,HashWordSize);
       uint8_t state2[HashWordSize];
-      memset(state2,0,HashWordSize);
+      memset(state2,0x73,HashWordSize);
       uint8_t* stateInPtr  = state1;
       uint8_t* stateOutPtr = state2;
       for(uint32_t i=0; i < length;i += HashWordSize)
