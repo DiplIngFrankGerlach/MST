@@ -68,6 +68,23 @@ public:
                       schedule,  
                       HashWordSizeBits) ;
 
+          //mix the first AES word again with the output of the second
+          //AES word encryption and encrypt once again
+          //Goal: ensure a single bit change anywhere in the 32 octet word
+          //      will mix the entire hash state
+          BYTE inputBuffer3[16];
+          for( uint32_t j=0; j < 16; j++)
+          {
+             inputBuffer3[j] = stateOutPtr[j+16] ^ stateOutPtr[j];
+          }
+          aes_encrypt(inputBuffer3, 
+                      stateOutPtr,
+                      schedule,  
+                      HashWordSizeBits) ;
+          
+
+
+
           //H[i] = E(PT,H[i-1]) XOR H[i-1]
           for( uint32_t j=0; j < HashWordSize; j++)
           {
