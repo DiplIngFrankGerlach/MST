@@ -65,7 +65,7 @@ public:
           BYTE inputBuffer2[16];
           for( uint32_t j=0; j < 16; j++)
           {
-             inputBuffer2[j+16] = stateInPtr[j+16] ^ stateOutPtr[j];
+             inputBuffer2[j] = stateInPtr[j+16] ^ stateOutPtr[j];
           }
    
 
