@@ -37,13 +37,20 @@ public:
       unsigned int schedule[60];
       memset(schedule,0,60*sizeof(uint32_t));
       uint8_t state1[HashWordSize];
-      memset(state1,0,HashWordSize);
       uint8_t state2[HashWordSize];
-      memset(state2,0x73,HashWordSize);
+
+      //initialize the two state words such that 
+      //they have a minimum of entropy
+      for(int i=0; i < 32; i++)
+      {
+         state1[i] = uint8_t(i);
+         state2[i] = uint8_t(i+32);
+      }
       uint8_t* stateInPtr  = state1;
       uint8_t* stateOutPtr = state2;
       for(uint32_t i=0; i < length;i += HashWordSize)
       {
+          //use the input as the 32 octet AES key
           aes_key_setup(input+i,
                         schedule, 
                         HashWordSizeBits);
@@ -54,7 +61,7 @@ public:
                       HashWordSizeBits) ;
 
           //concatenate the output of the first AES encryption with the
-          //second AES word
+          //second state word
           BYTE inputBuffer2[16];
           memcpy(inputBuffer2,stateInPtr  + (HashWordSize/2),16);
           for( uint32_t j=0; j < 16; j++)
@@ -70,7 +77,7 @@ public:
 
           //mix the first AES word again with the output of the second
           //AES word encryption and encrypt once again
-          //Goal: ensure a single bit change anywhere in the 32 octet word
+          //Goal: ensure a single bit change anywhere in the 32 octet state 
           //      will mix the entire hash state
           BYTE inputBuffer3[16];
           for( uint32_t j=0; j < 16; j++)
