@@ -39,12 +39,12 @@ public:
       uint8_t state1[HashWordSize];
       uint8_t state2[HashWordSize];
 
-      //initialize the two state words such that 
-      //they have a minimum of entropy
+      //initialize the state word such that 
+      //its has a minimum of entropy
       for(int i=0; i < 32; i++)
       {
          state1[i] = uint8_t(i);
-         state2[i] = uint8_t(i+32);
+         state2[i] = uint8_t(i+33);
       }
       uint8_t* stateInPtr  = state1;
       uint8_t* stateOutPtr = state2;
@@ -63,15 +63,14 @@ public:
           //concatenate the output of the first AES encryption with the
           //second state word
           BYTE inputBuffer2[16];
-          memcpy(inputBuffer2,stateInPtr  + (HashWordSize/2),16);
           for( uint32_t j=0; j < 16; j++)
           {
-             inputBuffer2[j] ^= stateOutPtr[j];
+             inputBuffer2[j+16] = stateInPtr[j+16] ^ stateOutPtr[j];
           }
    
 
           aes_encrypt(inputBuffer2, 
-                      stateOutPtr + (HashWordSize/2),
+                      stateOutPtr + 16,
                       schedule,  
                       HashWordSizeBits) ;
 
@@ -82,7 +81,7 @@ public:
           BYTE inputBuffer3[16];
           for( uint32_t j=0; j < 16; j++)
           {
-             inputBuffer3[j] = stateOutPtr[j+16] ^ stateOutPtr[j];
+             inputBuffer3[j] = stateOutPtr[j] ^ stateOutPtr[j+16];
           }
           aes_encrypt(inputBuffer3, 
                       stateOutPtr,
