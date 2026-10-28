@@ -254,6 +254,7 @@ public:
    {
       memset(_buffer,0,_bufferSize);
       delete[] _buffer;
+      _sessionKeySendingCreated = false;
       //wipe cipher secrets
       memset(_sharedSecret,0,AES_KEY_SIZE);
       memset(_sessionKeyOwn,0,AES_KEY_SIZE);
@@ -277,9 +278,13 @@ public:
            aes_key_setup(_sessionKeyOwn,_aesScheduleSessionKeyOwn,AES_KEY_SIZE_BITS);
            memcpy(encryptedOwnKey32,_sessionKeyOwnEncrypted,AES_KEY_SIZE); 
            _sessionKeySendingCreated = true;
+           return true;
+        } 
+        else
+        {
+           _sessionKeySendingCreated = false;
            return false;
         }
-        return true;
    }
 
    bool createSessionReceive(uint8_t* encryptedPartnerKey32)
