@@ -48,11 +48,22 @@ SCHLUESSELTEXT[i] = GesicherterKlartext[i]  XOR AES_ZAEHLER[i]
 Protokoll
 =========
 
-1.) Beide Endpunkte erzeugen Sitzungs_Schlüssel_verschlüsselt und senden diesen
+1.) Beide Endpunkte ANNA und BERTA erzeugen Sitzungs_Schlüssel_verschlüsselt und senden diesen
     jeweils zur Gegenseite
+
+Anna erzeugt SIS_ANNA = Sitzungs_Schlüssel_verschlüsselt.
+Anna schickt SIS_ANNA zu Berta
+
+Berta erzeugt SIS_BERTA = Sitzungs_Schlüssel_verschlüsselt.
+Berta schickt SIS_BERTA zu Anna
+
+
 
 2.) Beide Fernmeldepartner senden sich Befehle und Rückmeldungen mittels
     SCHLUESSELTEXT Datenstrukturen.
+
+Anna erzeugt SCHLUESSELTEXT(Anna) unter Verwendung von SIS_BERTA, sendet diesen an Berta
+Berta erzeugt SCHLUESSELTEXT(Berta) unter Verwendung von SIS_ANNA, sendet diesen an Berta
 
 2.2) Sollte bei der Überprüfung von DAVIES_MEYER(Laenge(Klartext) Klartext Padding32)
      ein Unterschied festgestellt werden, wird ein Fehler an die höheren
