@@ -50,7 +50,7 @@ public:
                             uint8_t** outputBuffer,  //typically a reference to a pointer
                             uint32_t* outputSize)    //typically a reference to a uint32_t 
    {
-        if( (length == 0) || (length > (UINT_MAX-32) ) )
+        if( (length == 0) || (length > (UINT_MAX-32-4) ) )
         {
           cout << "Error 1 in createAuthPlaintext" << endl;
           return false;
@@ -276,7 +276,7 @@ public:
         RandomSource rs;
         if( rs.getRandomNumber256(_sessionKeyReceive) )
         {
-           Util::dumpHex(_sessionKeyReceive,32);
+           //Util::dumpHex(_sessionKeyReceive,32);
            aes_encrypt(_sessionKeyReceive,_sessionKeyReceiveEncrypted,_aesSchedule,AES_KEY_SIZE_BITS);
            aes_encrypt(_sessionKeyReceive + (AES_KEY_SIZE/2),_sessionKeyReceiveEncrypted + (AES_KEY_SIZE/2),_aesSchedule,AES_KEY_SIZE_BITS);
            aes_key_setup(_sessionKeyReceive,_aesScheduleKeyReceive,AES_KEY_SIZE_BITS);
@@ -296,7 +296,7 @@ public:
    {
         aes_decrypt(encryptedPartnerKey32,_partnerSendingKey,_aesSchedule,AES_KEY_SIZE_BITS);
         aes_decrypt(encryptedPartnerKey32+AES_KEY_SIZE_HALF,_partnerSendingKey+AES_KEY_SIZE_HALF,_aesSchedule,AES_KEY_SIZE_BITS);
-        Util::dumpHex(_partnerSendingKey,32);
+        //Util::dumpHex(_partnerSendingKey,32);
         aes_key_setup(_partnerSendingKey,_aesSchedulePartnerSending,AES_KEY_SIZE_BITS);
         _sendingKeyReceived = true;
         return true;

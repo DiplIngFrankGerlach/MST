@@ -9,7 +9,7 @@ int main()
 
     uint8_t* key;
     assert(kr.getKeyForPartnerID(104,&key) && (key != NULL));
-    assert( key[0] = 0xb4);
+    assert( key[0] == 0xb4);
 }
 
 

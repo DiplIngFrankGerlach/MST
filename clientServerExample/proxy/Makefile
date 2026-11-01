@@ -2,7 +2,7 @@
 #
 # 
 
-VPATH:=../../aes ../ ../../
+VPATH:=../../aes:../:../../
 
 INCLUDES= -I../.. -I.. -I../../aes
 
@@ -11,14 +11,14 @@ CFLAGS= -g -Wall $(INCLUDES)
 GPP_FLAGS = -g -Wall $(INCLUDES) -std=c++11
 
 
-OBJECTS_SERVER = aes.o TCPServerTest.o BufferedSocket.o MST_Socket.o \
-                 KeyReader.o TCPServer.o
+OBJECTS_SERVER = ../../aes.o TCPServerTest.o ../BufferedSocket.o MST_Socket.o \
+                 ../KeyReader.o TCPServer.o ../../GeneralUtil.o
 
-OBJECTS_PROXY_CLIENT = aes.o proxyClient.o BufferedSocket.o MST_Socket.o \
-                       TCPServer.o KeyReader.o TCPUtil.o
+OBJECTS_PROXY_CLIENT = ../../aes.o proxyClient.o ../BufferedSocket.o MST_Socket.o \
+                       TCPServer.o ../KeyReader.o TCPUtil.o ../../GeneralUtil.o
 
-OBJECTS_PROXY_SERVER = aes.o proxyServer.o BufferedSocket.o MST_Socket.o \
-                       TCPServer.o KeyReader.o TCPUtil.o
+OBJECTS_PROXY_SERVER = ../../aes.o proxyServer.o ../BufferedSocket.o MST_Socket.o \
+                       TCPServer.o ../KeyReader.o TCPUtil.o  ../../GeneralUtil.o
 
 OBJS_TCP_CLIENT = tcpClient.o BufferedSocket.o 
 

@@ -116,12 +116,15 @@ void TCPServer::acceptLoop()
       client_sock = accept(_acceptPort,
                            (struct sockaddr *)&client_name,
                            &client_name_len);    
-      _workQueue.insertWork(client_sock);
       
 
-      if (client_sock == -1)
+      if (client_sock < 0)
       {
          printError("accept failed");
+      }
+      else
+      {  
+         _workQueue.insertWork(client_sock);
       }
     }
     close(_acceptPort);//currently unreachable
