@@ -50,11 +50,11 @@ void encryptedCommunicationExample()
    MST_Endpoint endpointB(sharedKey);
 
    uint8_t sessionKeyEncrypted[32];
-   endpointA.createSenderSession(sessionKeyEncrypted);
-   endpointB.createSessionReceive(sessionKeyEncrypted);
+   endpointA.createReceivingKey(sessionKeyEncrypted);
+   endpointB.initSendingKey(sessionKeyEncrypted);
 
-   endpointB.createSenderSession(sessionKeyEncrypted);
-   endpointA.createSessionReceive(sessionKeyEncrypted);
+   endpointB.createReceivingKey(sessionKeyEncrypted);
+   endpointA.initSendingKey(sessionKeyEncrypted);
 
  
    cout << "encryptedCommunicationExample 1" << endl; 
@@ -88,11 +88,11 @@ void encryptedCommunicationExampleComplex()
    MST_Endpoint endpointB(sharedKey);
 
    uint8_t sessionKeyEncrypted[32];
-   endpointA.createSenderSession(sessionKeyEncrypted);
-   endpointB.createSessionReceive(sessionKeyEncrypted);
+   endpointA.createReceivingKey(sessionKeyEncrypted);
+   endpointB.initSendingKey(sessionKeyEncrypted);
 
-   endpointB.createSenderSession(sessionKeyEncrypted);
-   endpointA.createSessionReceive(sessionKeyEncrypted);
+   endpointB.createReceivingKey(sessionKeyEncrypted);
+   endpointA.initSendingKey(sessionKeyEncrypted);
 
  
    
@@ -152,11 +152,11 @@ void encryptedCommunicationFailTest()
    MST_Endpoint endpointB(sharedKey);
 
    uint8_t sessionKeyEncrypted[32];
-   endpointA.createSenderSession(sessionKeyEncrypted);
-   endpointB.createSessionReceive(sessionKeyEncrypted);
+   endpointA.createReceivingKey(sessionKeyEncrypted);
+   endpointB.initSendingKey(sessionKeyEncrypted);
 
-   endpointB.createSenderSession(sessionKeyEncrypted);
-   endpointA.createSessionReceive(sessionKeyEncrypted);
+   endpointB.createReceivingKey(sessionKeyEncrypted);
+   endpointA.initSendingKey(sessionKeyEncrypted);
 
  
    
@@ -184,11 +184,11 @@ void replayAttackFailTest()
    MST_Endpoint endpointB(sharedKey);
 
    uint8_t sessionKeyEncrypted[32];
-   endpointA.createSenderSession(sessionKeyEncrypted);
-   endpointB.createSessionReceive(sessionKeyEncrypted);
+   endpointA.createReceivingKey(sessionKeyEncrypted);
+   endpointB.initSendingKey(sessionKeyEncrypted);
 
-   endpointB.createSenderSession(sessionKeyEncrypted);
-   endpointA.createSessionReceive(sessionKeyEncrypted);
+   endpointB.createReceivingKey(sessionKeyEncrypted);
+   endpointA.initSendingKey(sessionKeyEncrypted);
 
    
    //now we can securely encrypt with all assurances of the protocol
@@ -220,11 +220,11 @@ void duplicateObfuscationTest()
    MST_Endpoint endpointB(sharedKey);
 
    uint8_t sessionKeyEncrypted[32];
-   endpointA.createSenderSession(sessionKeyEncrypted);
-   endpointB.createSessionReceive(sessionKeyEncrypted);
+   endpointA.createReceivingKey(sessionKeyEncrypted);
+   endpointB.initSendingKey(sessionKeyEncrypted);
 
-   endpointB.createSenderSession(sessionKeyEncrypted);
-   endpointA.createSessionReceive(sessionKeyEncrypted);
+   endpointB.createReceivingKey(sessionKeyEncrypted);
+   endpointA.initSendingKey(sessionKeyEncrypted);
  
    
    //now we can securely encrypt with all assurances of the protocol

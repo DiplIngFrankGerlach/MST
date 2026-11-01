@@ -86,19 +86,17 @@ bool MST_Socket::connectAndStartup()
          else return false;
       }
 
-      //cout << "S3" << endl;
-      //exchange Mask Counters
-      uint8_t senderKey[AES_KEY_SIZE];
-      _mstEP->createSenderSession(senderKey);
+      uint8_t receiverKeyEncrypted[AES_KEY_SIZE];
+      _mstEP->createReceivingKey(receiverKeyEncrypted);
 
-      if( _bufSocket.write(senderKey,AES_KEY_SIZE) && _bufSocket.flush() )
+      if( _bufSocket.write(receiverKeyEncrypted,AES_KEY_SIZE) && _bufSocket.flush() )
       {
           //cout << "S4" << endl;
-          uint8_t receiverKey[AES_KEY_SIZE];
-          if( _bufSocket.read(receiverKey,AES_KEY_SIZE) )
+          uint8_t senderKeyEnc[AES_KEY_SIZE];
+          if( _bufSocket.read(senderKeyEnc,AES_KEY_SIZE) )
           {
               //cout << "S5" << endl;
-              _mstEP->createSessionReceive(receiverKey);
+              _mstEP->initSendingKey(senderKeyEnc);//BAUSTELLE
               return true;
           }
       }

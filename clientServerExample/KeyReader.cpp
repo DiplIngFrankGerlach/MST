@@ -276,7 +276,7 @@ KeyReader::~KeyReader()
 {
    delete[] _readBuffer;
    _readBuffer = NULL;
-   close(_fileHandle);
+   if(_fileHandle >= 0) close(_fileHandle);
    _fileHandle = 0;   
 }
 

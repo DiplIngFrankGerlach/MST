@@ -62,6 +62,9 @@ Berta schickt SIS_BERTA zu Anna
 2.) Beide Fernmeldepartner senden sich Befehle und Rückmeldungen mittels
     SCHLUESSELTEXT Datenstrukturen.
 
+    Dabei nutzt Anna den Schlüssel SIS_BERTA zum Senden.
+    Berta nutzt den Schluessel SIS_ANNA zum Senden
+
 Anna erzeugt SCHLUESSELTEXT(Anna) unter Verwendung von SIS_BERTA, sendet diesen an Berta
 Berta erzeugt SCHLUESSELTEXT(Berta) unter Verwendung von SIS_ANNA, sendet diesen an Berta
 

@@ -32,7 +32,8 @@ client.o: BufferedSocket.h
 
 Protocol.h: ../DaviesMeyerHash.h ../Util.h ../RandomSource.h
 
-LIBS=-lsocket -lresolv -lnsl
+#LIBS=-lsocket -lresolv -lnsl
+LIBS=
 
 %.o: %.c 
 	gcc $(CFLAGS)  -c  $< -o $@ 

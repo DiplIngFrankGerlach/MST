@@ -182,26 +182,26 @@ public:
 class MST_Endpoint
 {
    uint8_t _sharedSecret[AES_KEY_SIZE];      //the secret key shared by the communication partners
-   uint8_t _sessionKeyOwn[AES_KEY_SIZE];
-   uint8_t _sessionKeyOwnEncrypted[AES_KEY_SIZE];
-   uint8_t _sessionKeyPartner[AES_KEY_SIZE];
+   uint8_t _sessionKeyReceive[AES_KEY_SIZE];
+   uint8_t _sessionKeyReceiveEncrypted[AES_KEY_SIZE];
+   uint8_t _partnerSendingKey[AES_KEY_SIZE];
    uint8_t _CounterOwn[COUNTER_SIZE];    //the MaskingCounter of this endpoint
    uint8_t _CounterPartner[COUNTER_SIZE];//the MaskingCounter of the other endpoint
   
 
 
    unsigned int _aesSchedule[60];  //shared master secret AES cipher internal state (derived from _sharedSecret)
-   unsigned int _aesScheduleSessionKeyOwn[60]; // AES Session key state for reception 
-   unsigned int _aesScheduleSessionKeyPartner[60]; // AES Session key state for sending
+   unsigned int _aesScheduleKeyReceive[60]; // AES Session key state for reception   ME<-OTHER
+   unsigned int _aesSchedulePartnerSending[60]; // AES Session key state for sending ME->OTHER
 
-   bool _sessionKeySendingCreated;     
-   bool _sessionKeyReceivingCreated;     
+   bool _receivingKeyCreated;     
+   bool _sendingKeyReceived;     
    
    uint8_t* _buffer; 
    uint32_t _bufferSize;
 
    MST_Hash _mstHash;
-	
+   
    bool ensureBufferSize(uint32_t sz)
    {
       if(_bufferSize < sz )
@@ -245,8 +245,8 @@ public:
    MST_Endpoint(const uint8_t* sharedSecret):_buffer(NULL),_bufferSize(0)
    {
         memcpy(_sharedSecret,sharedSecret,AES_KEY_SIZE);
-        _sessionKeySendingCreated = false;
-        _sessionKeyReceivingCreated = false;     
+        _receivingKeyCreated = false;
+        _sendingKeyReceived = false;     
    
         aes_key_setup(_sharedSecret,_aesSchedule,AES_KEY_SIZE_BITS);
         memset(_CounterOwn,0,COUNTER_SIZE);
@@ -257,45 +257,48 @@ public:
    {
       memset(_buffer,0,_bufferSize);
       delete[] _buffer;
-      _sessionKeySendingCreated = false;
+      _receivingKeyCreated = false;
       //wipe cipher secrets
       memset(_sharedSecret,0,AES_KEY_SIZE);
-      memset(_sessionKeyOwn,0,AES_KEY_SIZE);
-      memset(_sessionKeyPartner,0,AES_KEY_SIZE);
+      memset(_sessionKeyReceive,0,AES_KEY_SIZE);
+      memset(_partnerSendingKey,0,AES_KEY_SIZE);
       memset(_CounterOwn,0,COUNTER_SIZE);
       memset(_CounterPartner,0,COUNTER_SIZE);
 
       memset(_aesSchedule,0,60*sizeof(int));
-      memset(_aesScheduleSessionKeyOwn,0,60*sizeof(int));
-      memset(_aesScheduleSessionKeyPartner,0,60*sizeof(int));
+      memset(_aesScheduleKeyReceive,0,60*sizeof(int));
+      memset(_aesSchedulePartnerSending,0,60*sizeof(int));
    }
 
-
-   bool createSenderSession(uint8_t* encryptedOwnKey32)
+   //create the session key, which the partner uses for sending and we use for receiving
+   bool createReceivingKey(uint8_t* encryptedOwnKey32)
    {
         RandomSource rs;
-        if( rs.getRandomNumber256(_sessionKeyOwn) )
+        if( rs.getRandomNumber256(_sessionKeyReceive) )
         {
-           aes_encrypt(_sessionKeyOwn,_sessionKeyOwnEncrypted,_aesSchedule,AES_KEY_SIZE_BITS);
-           aes_encrypt(_sessionKeyOwn + (AES_KEY_SIZE/2),_sessionKeyOwnEncrypted + (AES_KEY_SIZE/2),_aesSchedule,AES_KEY_SIZE_BITS);
-           aes_key_setup(_sessionKeyOwn,_aesScheduleSessionKeyOwn,AES_KEY_SIZE_BITS);
-           memcpy(encryptedOwnKey32,_sessionKeyOwnEncrypted,AES_KEY_SIZE); 
-           _sessionKeySendingCreated = true;
+           Util::dumpHex(_sessionKeyReceive,32);
+           aes_encrypt(_sessionKeyReceive,_sessionKeyReceiveEncrypted,_aesSchedule,AES_KEY_SIZE_BITS);
+           aes_encrypt(_sessionKeyReceive + (AES_KEY_SIZE/2),_sessionKeyReceiveEncrypted + (AES_KEY_SIZE/2),_aesSchedule,AES_KEY_SIZE_BITS);
+           aes_key_setup(_sessionKeyReceive,_aesScheduleKeyReceive,AES_KEY_SIZE_BITS);
+           memcpy(encryptedOwnKey32,_sessionKeyReceiveEncrypted,AES_KEY_SIZE); 
+           _receivingKeyCreated = true;
            return true;
         } 
         else
         {
-           _sessionKeySendingCreated = false;
+           _receivingKeyCreated = false;
            return false;
         }
    }
 
-   bool createSessionReceive(uint8_t* encryptedPartnerKey32)
+   //set up the session key for sending messages to the partner and he uses for receiving
+   bool initSendingKey(uint8_t* encryptedPartnerKey32)
    {
-        aes_decrypt(encryptedPartnerKey32,_sessionKeyPartner,_aesSchedule,AES_KEY_SIZE_BITS);
-        aes_decrypt(encryptedPartnerKey32+AES_KEY_SIZE_HALF,_sessionKeyPartner+AES_KEY_SIZE_HALF,_aesSchedule,AES_KEY_SIZE_BITS);
-        aes_key_setup(_sessionKeyPartner,_aesScheduleSessionKeyPartner,AES_KEY_SIZE_BITS);
-        _sessionKeyReceivingCreated = true;
+        aes_decrypt(encryptedPartnerKey32,_partnerSendingKey,_aesSchedule,AES_KEY_SIZE_BITS);
+        aes_decrypt(encryptedPartnerKey32+AES_KEY_SIZE_HALF,_partnerSendingKey+AES_KEY_SIZE_HALF,_aesSchedule,AES_KEY_SIZE_BITS);
+        Util::dumpHex(_partnerSendingKey,32);
+        aes_key_setup(_partnerSendingKey,_aesSchedulePartnerSending,AES_KEY_SIZE_BITS);
+        _sendingKeyReceived = true;
         return true;
    }
    
@@ -309,7 +312,7 @@ public:
                              uint8_t** plaintext,  //plaintext output, typically a reference to a pointer
                              uint32_t* lengthPlaintext) //plaintext length, typically a refrence to a uint32_t
    {
-      if( !_sessionKeyReceivingCreated )   return false; 
+      if( !_receivingKeyCreated )   return false; 
 
       if( lengthSM > 1000000000) return false;//avoid integer overflows
 
@@ -325,7 +328,7 @@ public:
       {
          //cout << "decryptSecureMessage " << i << endl;
          uint8_t aesZaehler[AES_WORDSIZE];
-         aes_encrypt(_CounterPartner,aesZaehler,_aesScheduleSessionKeyPartner,HashWordSizeBits);
+         aes_encrypt(_CounterPartner,aesZaehler,_aesScheduleKeyReceive,HashWordSizeBits);
          //XOR deciphering
          for(uint8_t j=0; j < AES_WORDSIZE; j++)
          {
@@ -358,25 +361,25 @@ public:
                                uint8_t** securedMessage,
                                uint32_t* lengthSM)
    {
-       if( !_sessionKeySendingCreated)
+       if( !_sendingKeyReceived)
        {
-           cout << "Session key has not been created !" << endl;
+           cout << "Sending key has not yet been received and installed !" << endl;
            return false;
        }
         
        if( _mstHash.createAuthPlaintext(plaintext,length,securedMessage,lengthSM) )
        {
-	      for(uint32_t i=0; i < (*lengthSM); i += AES_WORDSIZE)
-	      {
+         for(uint32_t i=0; i < (*lengthSM); i += AES_WORDSIZE)
+         {
             //apply masking
             uint8_t aes_zaehler[AES_WORDSIZE];
-            aes_encrypt(_CounterOwn,aes_zaehler,_aesScheduleSessionKeyOwn,HashWordSize);
+            aes_encrypt(_CounterOwn,aes_zaehler,_aesSchedulePartnerSending,HashWordSize);
             for(uint8_t j=0; j < AES_WORDSIZE; j++)
             {
                (*securedMessage)[i+j] ^= aes_zaehler[j];
             }
             incrementMC(_CounterOwn);
-	      }
+         }
          return true; 
        }
        else return false;

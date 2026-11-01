@@ -4,7 +4,7 @@
 *
 * Free for non-Commercial Use. Commercial Use requires a license from the author.
 *
-* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2026 Frank Gerlach, frank.gerlach@di-fg.de
 *
 **********************************************************************************/
 
@@ -31,33 +31,39 @@ int main(int argc, char *argv[])
     
     BufferedSocket bufSock;
     //string hn("localhost");
-    string hn("192.168.178.69");
+    string hn("127.0.0.1");
 
     bufSock.connect(hn,1234);
 
     writeInteger32(bufSock,1001);//partnerNumber
+    bufSock.flush();
+     
 
     uint8_t sharedKey[] = {0x9f,0x51,0xcf,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb3,
                            0x90,0x52,0xc3,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb4  };
     MST_Endpoint ep(sharedKey);
 
-    uint8_t senderKey[AES_KEY_SIZE];
-    ep.createSenderSession(senderKey);
+    uint8_t partnerSessionKeyEncrypted[AES_KEY_SIZE];
 
-    bufSock.write(senderKey,AES_KEY_SIZE);
-    bufSock.flush();
+    if(bufSock.read(partnerSessionKeyEncrypted,AES_KEY_SIZE) == false)
+    { 
+        cerr << "could not read the partner's session key" << endl;
+        return -1;
+    }
+
+    ep.initSendingKey(partnerSessionKeyEncrypted);
+
 
     uint8_t* secureMessage;
     uint32_t smLength;
     string plaintext("The quick brown fox jumps over the lazy dog");
     if( ep.encryptToSecureMessage((uint8_t*)(plaintext.c_str()),(uint32_t)plaintext.length(),&secureMessage, &smLength) )
     {
+       cout << "encrypted" << endl;
        writeInteger32(bufSock,smLength);
+       //bufSock.flush();
        bufSock.write(secureMessage,smLength);
        bufSock.flush();
     }
 
-
-    //close(sock);
-     
 }

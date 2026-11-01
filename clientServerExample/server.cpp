@@ -5,7 +5,7 @@
 *
 * Free for non-Commercial Use. Commercial Use requires a license from the author.
 *
-* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2026 Frank Gerlach, frank.gerlach@di-fg.de
 *
 **********************************************************************************/
 
@@ -78,30 +78,33 @@ void* workerProcedure(void*)
                                 0x90,0x52,0xc3,0xc5,0xfd,0x1b,0x2a,0x17,0x57,0x9e,0x61,0x78,0xf8,0x5c,0x02,0xb4  };
          MST_Endpoint ep(sharedKey);
 
+
          uint8_t receiverKey[AES_KEY_SIZE];
+         ep.createReceivingKey(receiverKey);
+        
+         cout << "Sending Receiver Key" << endl;
+         bSocket.write(receiverKey,AES_KEY_SIZE);
+         bSocket.flush();
 
-         if( bSocket.read(receiverKey,AES_KEY_SIZE) )
+         cout << "X" << endl;
+         uint32_t l(-1);
+         if( readInteger32(bSocket,&l) && (l < 100000))
          {
-            cout << "X" << endl;
-            ep.createSessionReceive(receiverKey);
-            uint32_t l;
-
-            if( readInteger32(bSocket,&l) && (l < 100000))
+            cout << "X2 l:" << l << endl;
+            uint8_t* securedMessage = new uint8_t[l];
+               
+            if(bSocket.read(securedMessage,l) != true) { cerr << "reading cryptogram failed" << endl; return (void*)-1; }
+            cout << "X3" << endl;
+               
+            uint8_t* plaintext;
+            uint32_t ptLength;
+            if( ep.decryptSecureMessage(securedMessage,l,&plaintext,&ptLength) )
             {
-               cout << "X" << endl;
-               uint8_t* securedMessage = new uint8_t[l];
-               
-               bSocket.read(securedMessage,l);
-               
-               uint8_t* plaintext;
-               uint32_t ptLength;
-               if( ep.decryptSecureMessage(securedMessage,l,&plaintext,&ptLength) )
-               {
                   cout << "plaintext: " << ((char*)plaintext) << endl;
-               }        
-            }
+            }        
          }
       }
+      else cerr << "could not read partner number " << endl;
          
 
        
