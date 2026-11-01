@@ -4,7 +4,7 @@
 *
 * Free for non-Commercial Use. Commercial Use requires a license from the author.
 *
-* Copyright (C) 2017 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2026 Frank Gerlach, frank.gerlach@di-fg.de
 *
 **********************************************************************************/
 

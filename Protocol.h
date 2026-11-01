@@ -1,7 +1,7 @@
 /*********************************************************************************
 * Minimal Secure Transport Library
 *
-* Copyright (C) 2026 Frank Gerlach, frankgerlach.tai@gmx.de
+* Copyright (C) 2026 Frank Gerlach, frank.gerlach@di-fg.de
 *
 **********************************************************************************/
 
