@@ -27,6 +27,7 @@ Padding32 = Oktets mit Wert 0, bis zur Auffüllung der PDU auf eine Länge
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ACHTUNG: ChatGPT weisst hier auf eine Known-/Guessed-Plaintext-Attacke von Klartext hin !
 Das ist ein valider Einwand, welcher in Protokollversion 2.10 behoben werden wird.
+Lösung ist die Einfügung von 16 oktets geheimem Zufall in GesicherterKlartext. 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Laenge(Klartext) = 4 Oktets, welche als 32 bit Ganzzahl die Länge des Klartextes angeben
