@@ -24,6 +24,11 @@ GesicherterKlartext = Laenge(Klartext) Klartext Padding32 DAVIES_MEYER(Laenge(Kl
 Padding32 = Oktets mit Wert 0, bis zur Auffüllung der PDU auf eine Länge
             von einem Vielfachen von 32
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ACHTUNG: ChatGPT weisst hier auf eine Known-/Guessed-Plaintext-Attacke von Klartext hin !
+Das ist ein valider Einwand, welcher in Protokollversion 2.10 behoben werden wird.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Laenge(Klartext) = 4 Oktets, welche als 32 bit Ganzzahl die Länge des Klartextes angeben
 
 
